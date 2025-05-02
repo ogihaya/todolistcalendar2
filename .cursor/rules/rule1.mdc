@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+このプロジェクトは予定を管理できるtodoリストカレンダーのwebアプリを開発するプロジェクトです。フレームワークにNext.jsを使い、言語はtypescriptを使ってください。
