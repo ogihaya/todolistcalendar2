@@ -1,0 +1,6 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+このプロジェクトはタスク管理ができるtodoリストカレンダーの開発をするプロジェクトです。フレームワークにNext.jsを使い、言語はtypescriptで書いてください。
