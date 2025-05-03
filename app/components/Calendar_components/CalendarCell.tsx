@@ -1,3 +1,5 @@
+import { isHoliday } from "japanese-holidays";
+
 type CurrentYM = {
   year: number;
   month: number;
@@ -22,14 +24,14 @@ export default function CalendarCell({currentYM}:CalendarCellProps) {
 
     // 曜日に応じてクラス名を決定
     let textColorClass = "";
-    if (processDay === 0) {
+    if (processDay === 0 || isHoliday(processDate)) {
       textColorClass = "text-red-500"; // 日曜日は赤
     } else if (processDay === 6) {
       textColorClass = "text-blue-500"; // 土曜日は青
     }
     
     calendarCellList.push(
-      <div key={i} className={textColorClass}>
+      <div key={i} className={"border border-gray-300 "+textColorClass}>
         {processDate.getDate()}
       </div>
     );

@@ -10,11 +10,13 @@ const daysList = ["日", "月", "火", "水", "木", "金", "土"];
                 key={day}
                 // 条件によってクラスを切り替えます
                 className={
-                  index === 0
+                  "border border-gray-300 " +
+                  (index === 0
                     ? "text-red-500"   // 日曜日は赤
                     : index === 6
                     ? "text-blue-500"  // 土曜日は青
-                    : ""               // 他の曜日はデフォルト
+                    : ""   
+                  )            // 他の曜日はデフォルト
                 }
             >
                 {day}
