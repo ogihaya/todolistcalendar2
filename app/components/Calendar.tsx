@@ -3,6 +3,7 @@
 import { useState } from "react";
 import DaysHeader from "./Calendar_components/DaysHeader";
 import CalendarCell from "./Calendar_components/CalendarCell";
+import CalendarHeader from "./Calendar_components/CalendarHeader";
 
 type CurrentYM = {
   year: number;
@@ -16,6 +17,7 @@ export default function Calendar() {
 
   return (
   <div>
+    <CalendarHeader currentYM={currentYM} setCurrentYM={setCurrentYM}/>
     <DaysHeader />
     <CalendarCell currentYM={currentYM}/>
   </div>
