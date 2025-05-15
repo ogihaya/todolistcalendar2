@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "firebase": "^11.7.3",
     "japanese-holidays": "^1.0.10",
     "next": "15.3.1",
     "react": "^19.0.0",
