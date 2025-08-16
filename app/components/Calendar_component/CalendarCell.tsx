@@ -1,20 +1,12 @@
-// 日本の祝日判定用ライブラリをインポート
+import { CurrentYM } from "@/types/others";
 import { isHoliday } from "japanese-holidays";
 
-// 現在表示中の年月を管理するための型定義
-interface CurrentYM {
-  year: number;  // 年
-  month: number; // 月（0-11の値を取る）
-}
-
-// カレンダーセルコンポーネントのプロパティの型定義
 interface CalendarCellProps {
-  currentYM: CurrentYM; // 表示する年月
+  currentYM: CurrentYM;
 }
 
-// カレンダーの日付セルを表示するコンポーネント
 export default function CalendarCell({currentYM}:CalendarCellProps) {
-  // カレンダー生成に必要な日付情報を計算
+   // カレンダー生成に必要な日付情報を計算
   // 月の最終日を取得（翌月の0日目 = 当月の最終日）
   const daysInMonth = new Date(currentYM.year, currentYM.month + 1, 0).getDate();
   
@@ -53,13 +45,9 @@ export default function CalendarCell({currentYM}:CalendarCellProps) {
       </div>
     );
   }
-
-  // 7列のグリッドでカレンダーを表示
   return (
     <div className="grid grid-cols-7">
       {calendarCellList}
     </div>
   );
 }
-
-
