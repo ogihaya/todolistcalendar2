@@ -13,7 +13,7 @@ export interface Schedule {
   endTime: Date;
   repeat: RepeatType;
   repeatStartDate: Date;
-  repeatEndDate: Date;
+  repeatEndDate: Date | null;
   location?: string;
   memo?: string;
 }

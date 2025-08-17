@@ -1,24 +1,137 @@
-export default function AddScheduleModal() {
+import { useState } from "react";
+import { addDoc, collection } from "firebase/firestore";
+import { db, auth } from "@/lib/firebase";
+import { Schedule } from "@/types/event";
+
+// モーダルのプロパティの型定義
+interface AddScheduleModalProps {
+    onClose: () => void; // モーダルを閉じる関数
+}
+
+export default function AddScheduleModal({ onClose }: AddScheduleModalProps) {
+    // フォームの状態を管理するstate
+    const [formData, setFormData] = useState({
+        name: "",
+        startTime: "",
+        endTime: "",
+        repeat: "none" as const,
+        location: "",
+        memo: ""
+    });
+
+    // 送信中の状態を管理
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    // フォームの入力値を更新する関数
+    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    // フォームを送信する関数
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault(); // フォームのデフォルトの送信動作を防ぐ
+
+        // バリデーション（入力値の検証）
+        if (!formData.name || !formData.startTime || !formData.endTime) {
+            alert("予定名、開始時刻、終了時刻は必須です");
+            return;
+        }
+
+        // 開始時刻が終了時刻より後の場合はエラー
+        if (new Date(formData.startTime) >= new Date(formData.endTime)) {
+            alert("開始時刻は終了時刻より前である必要があります");
+            return;
+        }
+
+        setIsSubmitting(true); // 送信開始
+
+        try {
+            // 現在のユーザーIDを取得
+            const userId = auth.currentUser?.uid;
+            if (!userId) {
+                throw new Error('ユーザーがログインしていません');
+            }
+            // Firestoreに保存するデータを作成
+            const scheduleData: Omit<Schedule, 'id'> = {
+                type: 'schedule',
+                name: formData.name,
+                startTime: new Date(formData.startTime),
+                endTime: new Date(formData.endTime),
+                repeat: formData.repeat,
+                repeatStartDate: new Date(new Date(formData.startTime).setHours(0, 0, 0, 0)), // 繰り返し開始日は開始時刻の0時0分0秒
+                repeatEndDate: null,
+                location: formData.location,
+                memo: formData.memo
+            };
+
+            // Firestoreの'schedules'コレクションにデータを追加
+            await addDoc(collection(db, "users", userId, 'schedules'), scheduleData);
+
+            onClose(); // モーダルを閉じる
+
+        } catch (error) {
+            console.error("予定の保存に失敗しました:", error);
+            alert("予定の保存に失敗しました。もう一度お試しください。");
+        } finally {
+            setIsSubmitting(false); // 送信完了
+        }
+    };
+
     return (
-        <>
+        <form onSubmit={handleSubmit}>
             <div>
-                <label>予定名</label>
-                <input type="text" />
+                <label>
+                    予定名
+                </label>
+                <input
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="予定名を入力してください"
+                    required
+                />
             </div>
 
             <div>
-                <label>開始時刻</label>
-                <input type="datetime-local" />
+                <label>
+                    開始時刻
+                </label>
+                <input
+                    type="datetime-local"
+                    name="startTime"
+                    value={formData.startTime}
+                    onChange={handleInputChange}
+                    required
+                />
             </div>
 
             <div>
-                <label>終了時刻</label>
-                <input type="datetime-local" />
+                <label>
+                    終了時刻
+                </label>
+                <input
+                    type="datetime-local"
+                    name="endTime"
+                    value={formData.endTime}
+                    onChange={handleInputChange}
+                    required
+                />
             </div>
 
             <div>
-                <label>繰り返し</label>
-                <select>
+                <label>
+                    繰り返し
+                </label>
+                <select
+                    name="repeat"
+                    value={formData.repeat}
+                    onChange={handleInputChange}
+                >
                     <option value="none">なし</option>
                     <option value="daily">毎日</option>
                     <option value="weekly">毎週</option>
@@ -28,18 +141,46 @@ export default function AddScheduleModal() {
             </div>
 
             <div>
-                <label>場所</label>
-                <input type="text" />
+                <label>
+                    場所
+                </label>
+                <input
+                    type="text"
+                    name="location"
+                    value={formData.location}
+                    onChange={handleInputChange}
+                    placeholder="場所を入力してください"
+                />
             </div>
 
             <div>
-                <label>メモ</label>
-                <input type="text" />
+                <label>
+                    メモ
+                </label>
+                <input
+                    type="text"
+                    name="memo"
+                    value={formData.memo}
+                    onChange={handleInputChange}
+                    placeholder="メモを入力してください"
+                />
             </div>
 
-            <button>
-                予定を追加
-            </button>
-        </>
+            <div>
+                <button
+                    type="button"
+                    onClick={onClose}
+                    disabled={isSubmitting}
+                >
+                    キャンセル
+                </button>
+                <button
+                    type="submit"
+                    disabled={isSubmitting}
+                >
+                    {isSubmitting ? "保存中..." : "予定を追加"}
+                </button>
+            </div>
+        </form>
     );
 }

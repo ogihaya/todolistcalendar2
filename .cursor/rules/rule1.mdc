@@ -4,3 +4,17 @@ globs:
 alwaysApply: true
 ---
 このプロジェクトはタスク管理ができるtodoリストカレンダーの開発をするプロジェクトです。フレームワークにNext.jsを使い、言語はtypescriptで書いてください。
+
+データ構造は
+users/
+├── userId1/
+│   ├── schedules/
+│   │   ├── schedule1
+│   │   └── schedule2
+│   └── tasks/
+│       ├── task1
+│       └── task2
+├── userId2/
+│   ├── schedules/
+│   └── tasks/
+のようになっています
