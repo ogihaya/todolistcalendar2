@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="ja">
+    <head>
+        <meta charset="utf-8">
+        <meta name="description" content="本当の残り時間がわかるToDoリストカレンダーを製作中">
+        <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,minimum-scale=1,maximum-scale=1">
+        <title>本当の残り時間がわかるToDoリストカレンダー</title>
+        
+        <link rel="stylesheet" href="styles.css">
+    </head>
+    <body>
+        <!--表示している年と月-->
+        <div id="displayedYM"></div>
+
+        <!--- 月の切り替えボタン --->
+        <button id="prevMonthBtn" onclick="prevMonthBtnFunction()">&lt;</button>
+        <button id="nextMonthBtn" onclick="nextMonthBtnFunction()">&gt;</button>
+
+        <!--カレンダーの表示場所-->
+        <div id="calendar"></div>
+
+        <!--選択した日付のイベント表示-->
+        <div id="eventDetails">
+            <div id="selectedDateDisplay">選択した日付:未選択</div>
+            <div id="eventLists"></div>
+        </div>
+
+        <!--追加モーダルを表示させるボタン-->
+        <button type="button" id="addEventModalBtn" onclick="addEventModalBtnFunction()">追加</button>
+
+        <!--イベントを追加するモーダル-->
+        <div id="addEventModal" class="modal">
+
+            <!--予定かタスクかを選択する-->
+            <p>
+                <div>
+                <input type="radio" name="eventType" value="schedule" checked> 予定
+                <input type="radio" name="eventType" value="task"> タスク
+                </div>
+            </p>
+
+            <!--予定の時のフィールド-->
+            <div id="scheduleFields">
+                <p><input type="text" id="scheduleNameInput" placeholder="予定を入力"></p>
+                <p>開始日時<input type="datetime-local" id="startTimeInput"></p>
+                <p>終了日時<input type="datetime-local" id="endTimeInput"></p>
+                <p>
+                    繰り返し設定:
+                    <select id="scheduleFieldsRepeatTypeInput">
+                        <option value="none">繰り返さない</option>
+                        <option value="weekly">毎週</option>
+                        <option value="monthly">毎月</option>
+                        <option value="yearly">毎年</option>
+                    </select>
+                </p>
+                <!--追加ボタン-->
+                <button type="button" id="addScheduleBtn" onclick="addScheduleBtnFunction()">追加</button>
+                <!-- 閉じるボタン -->
+                <button type="button" class="closeAddEventModalBtn" onclick="closeAddEventModalBtnFunction()">閉じる</button>
+            </div>
+
+            <!--タスクの時のフィールド-->
+            <div id="taskFields">
+                <p><input type="text" id="taskNameInput" placeholder="タスクを入力"></p>
+                <p>締切日<input type="date" id="deadlineInput"></p>
+                <p>所要時間<input type="number" step="0.01" id="requiredTimeInput" placeholder="所要時間"></p>
+                <!--追加ボタン-->
+                <button type="button" id="addTaskBtn" onclick="addTaskBtnFunction()">追加</button>
+                <!-- 閉じるボタン -->
+                <button type="button" class="closeAddEventModalBtn" onclick="closeAddEventModalBtnFunction()">閉じる</button>
+            </div>
+
+        </div>
+
+        <!--編集する対象を選択するモーダル-->
+        <div id="optionChangeDateModal" class="modal">
+            <!--すべての予定を編集-->
+            <button type="button" id="allScheduleBtn">すべての予定を編集</button>        
+            <!--この予定のみ編集-->
+            <button type="button" id="thisScheduleBtn">この予定のみ編集</button>
+            <!-- 以降の予定を編集 -->
+            <button type="button" id="laterScheduleBtn">以降の予定を編集</button>
+            <!-- 閉じるボタン -->
+            <button type="button" id="closeOptionChangeDateModalBtn">閉じる</button>
+
+        </div>
+    
+
+        <!--予定編集用のモーダル-->
+        <div id="editScheduleModal" class="modal">
+          <div class="modal-content">
+            <p><input type="text" id="editScheduleNameInput" placeholder="予定を入力"></p>
+            <p>開始日時<input type="datetime-local" id="editStartTimeInput"></p>
+            <p>終了日時<input type="datetime-local" id="editEndTimeInput"></p>
+            <p>
+                繰り返し設定:
+                <select id="editScheduleModalRepeatTypeInput">
+                    <option value="none">繰り返さない</option>
+                    <option value="weekly">毎週</option>
+                    <option value="monthly">毎月</option>
+                    <option value="yearly">毎年</option>
+                </select>
+            </p>
+            <!--変更ボタン-->
+            <button type="button" id="changeScheduleBtn">変更</button>
+            <!--削除ボタン-->
+            <button type="button" id="deleteScheduleBtn">削除</button>
+            <!-- 閉じるボタン -->
+            <button type="button" id="closeEditScheduleModalBtn">閉じる</button>
+          </div>
+        </div>
+        <!--task編集用のモーダル-->
+        <div id="editTaskModal" class="modal">
+          <div class="modal-content">
+            <p><input type="text" id="editTaskNameInput" placeholder="タスクを入力"></p>
+            <p>締切日<input type="date" id="editDeadlineInput"></p>
+            <p>所要時間<input type="number" step="0.01" id="editRequiredTimeInput" placeholder="所要時間"></p>
+            <!--変更ボタン-->
+            <button type="button" id="changeTaskBtn">変更</button>
+            <!--削除ボタン-->
+            <button type="button" id="deleteTaskBtn">削除</button>
+            <!-- 閉じるボタン -->
+            <button type="button" id="closeEditTaskModalBtn">閉じる</button>
+          </div>
+        </div>
+        
+        <!--タスクのリスト-->
+        <div id="taskArea">
+            <div id="taskList">
+               <!-- 既存のタスクリストの内容 -->
+            </div>
+            <div id="noDeadlineTaskWindow">
+               <!-- 新しく追加するウィンドウの内容 -->
+               <button type="button" id="addNoDeadlineTaskBtn" onclick="addNoDeadlineTaskFunction()">追加</button>
+               <div id="noDeadlineTaskList"></div>
+            </div>
+        </div>
+
+        <div id="minWorkTimeTodayDisplay" style="margin-top: 10px; padding: 10px; border: 1px solid #ccc;">今日最低限すべきタスク時間: 計算中...</div>
+        <p>一日あたり使える時間<input type="number" step="0.1" id="availableTime"></p>
+        <p>予定確定日<input type="date" id="accountDate"></p>
+        <p>予定未確定日の一日当たり使える時間<input type="number" step="0.1" id="unscheduledAvailableTime"></p>
+        <button type="button" id="update" onclick="updateFunction()">更新</button>
+        <!-- ログイン状態表示エリア -->
+        <div id="loginStatus"></div>
+        <!-- Googleログインボタン -->
+        <button id="google-login-button">Googleでログイン</button>
+        <!-- ログアウトボタン -->
+        <button id="logout-button" style="display: none;">ログアウト</button>
+        
+        <script>
+
+
+            //現在の年月日時を取得
+            const currentDate = new Date();//今の年月日時
+            const currentDateString = changeDateToString(currentDate);
+            const currentYear = currentDate.getFullYear();//今の年
+            const currentMonth = currentDate.getMonth();//今の月
+
+            //選択しているセルの日付を追う定数
+            let selectedDateString = currentDateString;
+
+            // ソートの状態を保持する変数
+            let currentSortKey = null; // 現在のソートキー (例: 'deadline', 'remainingTime')
+            let sortAscending = true;  // 昇順かどうか (true: 昇順, false: 降順)
+            
+            // 今日最低限すべきタスク時間関連のグローバル変数
+            let calculatedMinWorkTime = null;
+            let lastCalculatedMinWorkTimeDate = null;
+                        
+            // 現在表示中の年と月を保持する変数
+            let displayedMonth = currentMonth;
+            let displayedYear = currentYear;
+
+
+            //Dateオブジェクトを文字列に変換する関数
+            function changeDateToString(date) {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0'); // 月は0始まりなので +1
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+
+            //カレンダーを表示する関数
+            function generateCalendar(year, month) {
+
+                //月の最終日を取得
+                const daysInMonth = new Date(year, month + 1, 0).getDate();//表示している月の日数
+                const dayOfFirstDate = new Date(year, month, 1).getDay();//一日目の曜日
+                const dayOfLastDate = new Date(year, month+1, 0).getDay();//最終日の曜日
+
+                // カレンダーのHTML構造を生成
+                let calendarHtml = "<table><tr>";//HTML要素を作っていく
+
+                // 曜日のヘッダーを生成
+                for (let i = 0; i < 7; i++) {
+                    calendarHtml += `<th>${["日", "月", "火", "水", "木", "金", "土"][i]}</th>`;//まずは曜日の列
+                }
+                calendarHtml += "</tr><tr>";//一列目の終わり
+
+
+                //日付のセルを生成
+                for (let i = 1-dayOfFirstDate; i <= daysInMonth+6-dayOfLastDate; i++) {//先月の分と来月の分も表示するようなiの範囲でループ
+
+                    // 処理中の日付と曜日を取得
+                    const processedDate = new Date(year, month, i);
+                    const processedDay = processedDate.getDay();
+
+                    //いろいろなDateの文字列
+                    const processedDateString = changeDateToString(processedDate);
+
+                    //ここからクラス分けを行う
+                    let dateClass="date"; // 日付の数値のdivには "date" クラスのみを基本とする
+                    let cellClass="";     // td要素に状態クラスを付与
+                    if(processedDateString === currentDateString){
+                        cellClass += " today"; // tdにtodayクラス
+                    }
+                    if(holidayLists.some(holiday => 
+                        changeDateToString(holiday.holidayDate) === processedDateString)){
+                        cellClass += " holiday"; // tdにholidayクラス
+                    }
+                    if(processedDay === 0){ // 日曜日
+                        cellClass += " sunday";   // tdにsundayクラス
+                    }
+                    if(processedDay === 6){ // 土曜日
+                        cellClass += " saturday"; // tdにsaturdayクラス
+                    }
+                    if(processedDate.getMonth() !== month){
+                        cellClass += " prevNextMonthDate"; // tdにprevNextMonthDateクラス
+                    }
+                    if(processedDateString===selectedDateString){
+                        cellClass += " selected"; // tdにselectedクラス
+                    }
+
+                    // 対応する日付の予定を取得
+                    const schedulesForDate = events.schedules.filter(schedule => {
+                        const startDate = schedule.startTime.split('T')[0]; // YYYY-MM-DD
+                        const endDate = schedule.endTime.split('T')[0];     // YYYY-MM-DD
+                        if(schedule.repeatType === "weekly"){
+                            const weeklySchedulestart = new Date(startDate);
+                            const cellDate = new Date(processedDateString);
+                            const diffDays = Math.floor((cellDate - weeklySchedulestart) / (1000 * 60 * 60 * 24));
+                            // repeatPriodEndが"none"でない場合の条件を追加
+                            const isWithinRepeatPeriod = schedule.repeatPriodEnd === "none" || schedule.repeatPriodEnd >= processedDateString;
+                            return diffDays%7===0 && processedDateString >= startDate && isWithinRepeatPeriod && processedDateString >= schedule.repeatPriodStart;
+                        }else if(schedule.repeatType === "monthly"){
+                            const isWithinRepeatPeriod = schedule.repeatPriodEnd === "none" || schedule.repeatPriodEnd >= processedDateString;
+                            return processedDateString >= startDate && isWithinRepeatPeriod && processedDateString.split("-")[2]===startDate.split("-")[2]&& processedDateString >= schedule.repeatPriodStart;
+                        }else if(schedule.repeatType === "yearly"){
+                            const isWithinRepeatPeriod = schedule.repeatPriodEnd === "none" || schedule.repeatPriodEnd >= processedDateString;
+                            return processedDateString >= startDate && isWithinRepeatPeriod && processedDateString.substring(5, 10)===startDate.substring(5, 10)&& processedDateString >= schedule.repeatPriodStart;
+                        }else{
+                            return processedDateString >= startDate && processedDateString <= endDate;
+                        }
+                    });
+                    // 予定をHTML形式に変換
+                    const scheduleContents = schedulesForDate.map(schedule => `<div class="scheduleNameInCell" id="scheduleCell${schedule.id}_${processedDateString}">${schedule.scheduleName}</div>`).join("");
+
+                    //同様にタスクも取得
+                    const tasksForDate = events.tasks.filter(task => {
+                        return processedDateString === task.deadline;
+                    });
+                    // 予定をHTML形式に変換
+                    const taskContents = tasksForDate.map(task => `<div class="taskNameInCell" id="taskCell${task.id}">${task.taskName}</div>`).join("");
+
+
+                    // 日付のセルを追加F
+                    calendarHtml += `<td  
+                        id="${processedDateString}" 
+                        class="${cellClass.trim()}" // クラス名の前後の空白をトリム
+                        onclick="onclickCell('${processedDateString}')"
+                    >
+                    <div class="${dateClass}">${processedDate.getDate()}</div>
+                    <div class="schedulecontents">${scheduleContents}</div><div class="taskcontents">${taskContents}</div>
+                    </td>`;
+
+                    // 週の終わりに改行を追加
+                    if (processedDay === 6) {
+                        calendarHtml += "</tr>";
+                        if (i < daysInMonth+6-dayOfLastDate) {
+                        calendarHtml += "<tr>";
+                        }
+                    }
+
+                }
+                //テーブルの終了
+                calendarHtml += "</table>";
+
+                //要素の取得
+                const calendarEl = document.getElementById("calendar");//HTMLのcalendarというidの所の要素
+                const displayedYMEl = document.getElementById("displayedYM");//HTMLのdisplayedYMというidの所の要素
+
+                //できたHTMLをカレンダー要素に挿入
+                calendarEl.innerHTML = calendarHtml;
+
+                //displayedYMを表示
+                displayedYMEl.innerHTML = `${year}年${month+1}月`;
+
+            }
+
+                            
+            //タスクリストの生成
+            function generateTaskList(){      
+                makeDailyScheduleTime();      
+                const taskListEl = document.getElementById("taskList"); // タスクリストの要素を取得
+
+                // 締め切り日が設定されているタスクを抽出
+                const tasksWithDeadline = events.tasks.filter(task => task.deadline !== "noDeadline");
+
+                if (events.tasks.length === 0) {
+                    taskListEl.innerHTML = "<p>タスクはありません。</p>";
+                    return;
+                }
+
+                let criticalDeadline = null;
+                if (tasksWithDeadline.length > 0) {
+                    // 締め切り日があるタスクについて猶予時間を計算
+                    const tasksWithCalculatedRemainingTime = tasksWithDeadline.map(task => {
+                        return {
+                            ...task,
+                            remainingTime: calculateRemainingTime(task) // 猶予時間を計算
+                        };
+                    });
+
+                    // 猶予時間が数値である有効なタスクのみをフィルタリング
+                    const validTasksForCritical = tasksWithCalculatedRemainingTime.filter(
+                        task => typeof task.remainingTime === 'number' && !isNaN(task.remainingTime)
+                    );
+
+                    if (validTasksForCritical.length > 0) {
+                        // 猶予時間で昇順ソート、猶予時間が同じなら締切日で昇順ソート
+                        validTasksForCritical.sort((a, b) => {
+                            if (a.remainingTime < b.remainingTime) return -1;
+                            if (a.remainingTime > b.remainingTime) return 1;
+                            if (new Date(a.deadline) < new Date(b.deadline)) return -1;
+                            if (new Date(a.deadline) > new Date(b.deadline)) return 1;
+                            return 0;
+                        });
+                        criticalDeadline = validTasksForCritical[0].deadline; // 最も猶予時間が短いタスクの締切日
+                    }
+                }
+
+                // 全てのタスク（期限なしも含む）に猶予時間を計算または設定
+                const allTasksWithRemainingTime = events.tasks.map(task => {
+                    if (task.deadline === "noDeadline") {
+                        return { ...task, remainingTime: undefined }; // 期限なしタスクの猶予時間は undefined
+                    }
+                    // 締め切り日ありタスクは猶予時間を計算
+                    return {
+                        ...task,
+                        remainingTime: calculateRemainingTime(task)
+                    };
+                });
+                
+                // ソート処理 (ソートキーと方向に基づいて)
+                if (currentSortKey) {
+                    allTasksWithRemainingTime.sort((a, b) => {
+                        let valA = a[currentSortKey];
+                        let valB = b[currentSortKey];
+
+                        // deadline の場合は Date オブジェクトとして比較
+                        if (currentSortKey === 'deadline') {
+                            if (valA === "noDeadline" && valB === "noDeadline") return 0;
+                            if (valA === "noDeadline") return sortAscending ? 1 : -1; // "noDeadline" を末尾に
+                            if (valB === "noDeadline") return sortAscending ? -1 : 1; // "noDeadline" を末尾に
+                            valA = new Date(valA);
+                            valB = new Date(valB);
+                        } else if (currentSortKey === 'remainingTime') {
+                            // 猶予時間でのソート: undefined (期限なし) の扱い
+                            if (valA === undefined && valB === undefined) return 0;
+                            if (valA === undefined) return sortAscending ? 1 : -1; // undefined を末尾に (昇順時)
+                            if (valB === undefined) return sortAscending ? -1 : 1; // undefined を末尾に (昇順時)
+                            // remainingTime が数値でない場合は比較しない
+                            if (typeof valA !== 'number' || typeof valB !== 'number') return 0;
+                        } else if (typeof valA === 'string' && !isNaN(parseFloat(valA)) && currentSortKey !== 'taskName') { // taskName は文字列として比較
+                            valA = parseFloat(valA);
+                            valB = parseFloat(valB);
+                        }
+
+
+                        if (valA < valB) {
+                            return sortAscending ? -1 : 1;
+                        }
+                        if (valA > valB) {
+                            return sortAscending ? 1 : -1;
+                        }
+                        return 0;
+                    });
+                }
+                
+                let taskListHtml = `
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>タスク名</th>
+                                <th onclick="sortTableBy('deadline')">締切日 ${currentSortKey === 'deadline' ? (sortAscending ? '▲' : '▼') : ''}</th>
+                                <th onclick="sortTableBy('requiredTime')">所要時間 ${currentSortKey === 'requiredTime' ? (sortAscending ? '▲' : '▼') : ''}</th>
+                                <th onclick="sortTableBy('remainingTime')">猶予時間 ${currentSortKey === 'remainingTime' ? (sortAscending ? '▲' : '▼') : ''}</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                `;
+                allTasksWithRemainingTime.forEach(task => {
+                    const remainingTime = task.remainingTime;
+                    let taskRowStyle = "";
+                    // クリティカルな締切日が存在し、タスクの締切日が "noDeadline" でなく、
+                    // かつクリティカルな締切日より前の場合に文字色を赤くする
+                    if (criticalDeadline && task.deadline !== "noDeadline" && new Date(task.deadline) < new Date(criticalDeadline)) {
+                        taskRowStyle = "color: red;";
+                    }
+
+                    taskListHtml += `
+                        <tr style="${taskRowStyle}">
+                            <td>${task.taskName}</td>
+                            <td>${task.deadline === "noDeadline" ? "期限なし" : task.deadline}</td>
+                            <td>${task.requiredTime} 時間</td>
+                            <td>${remainingTime !== undefined && typeof remainingTime === 'number' ? remainingTime.toFixed(2) : 'N/A'} 時間</td>
+                            <td><button type="button" class="editTaskBtn" id="taskList${task.id}" onclick="openEditTaskModal('${task.id}')">編集</button></td>
+                        </tr>
+                    `;
+                });
+                taskListHtml += `
+                        </tbody>
+                    </table>
+                `;
+                taskListEl.innerHTML = taskListHtml;
+            }
+
+            //とりあえずタスクリストの生成
+            function generateTemporaryTaskList(){
+                const noDeadlineTaskListEl = document.getElementById("noDeadlineTaskList");
+                // "noDeadline"となっているタスクのみを抽出
+                const noDeadlineTasks = events.tasks.filter(task => task.deadline === "noDeadline");
+                
+                if(noDeadlineTasks.length === 0){
+                    noDeadlineTaskListEl.innerHTML = "<p>とりあえずのタスクはありません。</p>";
+                } else {
+                    const taskHtml = noDeadlineTasks.map(task => {
+                    return `
+                        <p>
+                        ${task.taskName}
+                        <button type="button" class="editTaskBtn" id="noDeadlineTask${task.id}" onclick="openEditTaskModal('${task.id}')">編集</button>
+                        </p>
+                    `;
+                    }).join("");
+                    noDeadlineTaskListEl.innerHTML = taskHtml;
+                }
+            }
+
+            let holidayLists = [];//祝日の情報を格納する箱
+            //祝日の情報を取得
+            fetch("syukujitsu.csv")//syukujitsu.csvにアクセス
+            .then(response => response.text())//返ってきた情報をテキスト情報に
+            .then(data => {//そのテキストデータを処理していく
+                holidayLists = data.split("\n").slice(1).map(holidayList => {//まず段落に分けて、最初のヘッダーを削って分けた段落に対して以下の処理を行う。行ったものをholidayListsにする
+                    const [holidayDate, holidayName] = holidayList.split(",");//分けた段落を,でさらに分けて分けたものを定数とする
+                    return { holidayDate: new Date(holidayDate), holidayName: holidayName};//その定数をオブジェクトにして返す。
+                });
+            }); 
+
+                       
+            //セルをクリックしたときの機能
+            function onclickCell(date) {
+                const dateObject=new Date(`${date}T00:00`);
+                //もし既に選択されているセルがあったらそのセルからselectedを削除
+                if(selectedDateString&&document.getElementById(selectedDateString)){//表示しているカレンダーにそもそも要素がなかった時も考える
+                    document.getElementById(selectedDateString).classList.remove("selected");
+                }
+                //要素を取得
+                const selectedDateDisplayEl = document.getElementById("selectedDateDisplay");
+                const eventListsEl = document.getElementById("eventLists");
+                selectedDateDisplayEl.textContent = `選択した日付: ${date}`;
+                //selectedDateStringを更新
+                selectedDateString = date;
+
+                let eventListsHtml = ""; // 初期化
+                const clickedCellEl = document.getElementById(date);
+                // セルの予定内容を取得
+                const scheduleContents = clickedCellEl.querySelectorAll(".scheduleNameInCell");
+                const taskContents = clickedCellEl.querySelectorAll(".taskNameInCell");
+
+                // 予定の詳細情報を表示
+                if (scheduleContents.length > 0) {
+                    scheduleContents.forEach(schedule => {
+                        const scheduleId = schedule.id; // ID"scheduleCell${schedule.id}${schedule.repeatType}${processedDate-Date(schedule.startTime)}
+                        const scheduleData = events.schedules.find(s => `scheduleCell${s.id}_${date}` === scheduleId);
+                        if (scheduleData) {
+                            let newStartTime=scheduleData.startTime.split("T")[1];
+                            let newEndTime=scheduleData.endTime.split("T")[1];
+                            let processedStartTime=new Date(scheduleData.startTime);
+                            let processedEndTime=new Date(scheduleData.endTime);
+                            if(scheduleData.repeatType=="weekly"){
+                                while(processedStartTime<dateObject){
+                                    processedStartTime.setDate(processedStartTime.getDate() + 7);
+                                    processedEndTime.setDate(processedEndTime.getDate() + 7);
+                                }
+                            }
+                            if(scheduleData.repeatType=="monthly"){
+                                while(processedStartTime<dateObject){
+                                    processedStartTime.setMonth(processedStartTime.getMonth() + 1);
+                                    processedEndTime.setMonth(processedEndTime.getMonth() + 1);
+                                }
+                            }
+                            if(scheduleData.repeatType=="yearly"){
+                                while(processedStartTime<dateObject){
+                                    processedStartTime.setFullYear(processedStartTime.getFullYear() + 1);
+                                    processedEndTime.setFullYear(processedEndTime.getFullYear() + 7);
+                                }
+                            }
+
+                            if(date!==changeDateToString(processedStartTime)){
+                                newStartTime="---"
+                            }
+                            if(date!==changeDateToString(processedEndTime)){
+                                newEndTime="---"
+                            }
+                            eventListsHtml += `<p>
+                                ${newStartTime}〜${newEndTime}: ${scheduleData.scheduleName}
+                                　　<button type="button" onclick="openOptionChangeDateModal('${scheduleData.id}_${date}')">編集</button>
+                            </p>`;
+                        }
+                    });
+                }
+            
+                // タスクの詳細情報を表示
+                if (taskContents.length > 0) {
+                    taskContents.forEach(task => {
+                        const taskId = task.id; // ID形式:taskCell${task.id}
+                        const taskData = events.tasks.find(t => `taskCell${t.id}` === taskId);
+                        if (taskData) {
+                            eventListsHtml += `<p>
+                                ${taskData.taskName}　　
+                                <button type="button" onclick="openEditTaskModal('${taskData.id}')">編集</button>
+                            </p>`;
+                        }
+                    });
+                }
+
+                if(eventListsHtml===""){
+                    eventListsHtml += "イベントがありません。";
+                }            
+
+                eventListsEl.innerHTML=eventListsHtml;
+                //クリックしたセルにselectedを付与
+                clickedCellEl.classList.add("selected");
+
+            }
+
+                    
+            
+            //前後月の移動ボタンの機能
+            //前の月への移動
+            function prevMonthBtnFunction(){
+                displayedMonth--;
+                if (displayedMonth < 0) {
+                    displayedMonth = 11;
+                    displayedYear--;
+                }
+                generateCalendar(displayedYear, displayedMonth);
+            }
+            //後ろの月の移動
+            function nextMonthBtnFunction(){
+                displayedMonth++;
+                if (displayedMonth > 11) {
+                    displayedMonth = 0;
+                    displayedYear++;
+                }
+                generateCalendar(displayedYear, displayedMonth);
+            }
+
+
+            //イベントモーダルを開くボタンの機能
+            function addEventModalBtnFunction(){
+                const addEventModalEl = document.getElementById("addEventModal");
+                addEventModalEl.style.display = "block";
+                document.getElementById("startTimeInput").value = `${selectedDateString}T00:00`;
+                document.getElementById("endTimeInput").value = `${selectedDateString}T00:00`;
+                document.getElementById("deadlineInput").value = selectedDateString;
+            }
+            //イベントモーダルを閉じるボタンの機能
+            function closeAddEventModalBtnFunction(){
+                const addEventModalEl = document.getElementById("addEventModal");
+                addEventModalEl.style.display = "none";
+            }
+
+            //とりあえずタスクのモーダルを開く
+            function addNoDeadlineTaskFunction(){
+                const addEventModalEl = document.getElementById("addEventModal");
+                const scheduleFieldsEl = document.getElementById("scheduleFields");
+                const taskFieldsEl = document.getElementById("taskFields");
+                document.querySelector('input[name="eventType"][value="task"]').checked = true;
+                addEventModalEl.style.display = "block";
+                scheduleFieldsEl.style.display = "none";
+                taskFieldsEl.style.display = "block";
+                document.getElementById("deadlineInput").value = "";
+                document.getElementById("requireTimeInput").value = "";
+            }
+
+            // ラジオボタンの切り替えの機能
+            document.querySelectorAll('input[name="eventType"]').forEach(radio => {
+                radio.addEventListener('change', (eventRadio) => {
+                const scheduleFieldsEl = document.getElementById('scheduleFields');
+                const taskFieldsEl = document.getElementById('taskFields');
+                if (eventRadio.target.value === 'schedule') {
+                    scheduleFieldsEl.style.display = 'block';
+                    taskFieldsEl.style.display = 'none';
+                } else {
+                    scheduleFieldsEl.style.display = 'none';
+                    taskFieldsEl.style.display = 'block';
+                }
+                });
+            });
+
+            //予定の新しいidを取得する関数
+            function getNewScheduleId() {
+                let allIds = events.schedules.map(s => s.id);
+                let maxId = allIds.length > 0 ? Math.max(...allIds) : 0;
+                return maxId + 1;
+            }
+            //taskの新しいidを取得する関数
+            function getNewTaskId() {
+                let allIds = events.tasks.map(t => t.id);
+                let maxId = allIds.length > 0 ? Math.max(...allIds) : 0;
+                return maxId + 1;
+            }
+
+                        
+            //予定追加ボタンの機能\
+            function addScheduleBtnFunction(){
+                const scheduleNameInputValue = document.getElementById("scheduleNameInput").value;
+                const startTimeInputValue = document.getElementById("startTimeInput").value;
+                const endTimeInputValue = document.getElementById("endTimeInput").value;
+                const scheduleFieldsRepeatTypeInputValue = document.getElementById("scheduleFieldsRepeatTypeInput").value;
+
+                if (!scheduleNameInputValue || !startTimeInputValue || !endTimeInputValue || !scheduleFieldsRepeatTypeInputValue) {
+                    alert("すべてのフィールドを入力してください！");
+                    return;
+                }
+                
+                if (endTimeInputValue < startTimeInputValue) {
+                    alert("終了時刻が開始時刻よりも前になっています！");
+                    return;
+                }
+
+                if(scheduleFieldsRepeatTypeInputValue==="none"){
+                    events.schedules.push({ 
+                        id:getNewScheduleId(),
+                        scheduleName: scheduleNameInputValue, 
+                        startTime: startTimeInputValue, 
+                        endTime: endTimeInputValue,
+                        repeatType:scheduleFieldsRepeatTypeInputValue,
+                        repeatPriodStart:startTimeInputValue.split("T")[0],
+                        repeatPriodEnd:startTimeInputValue.split("T")[0]
+                    });
+                }else{
+                    events.schedules.push({ 
+                        id:getNewScheduleId(),
+                        scheduleName: scheduleNameInputValue, 
+                        startTime: startTimeInputValue, 
+                        endTime: endTimeInputValue,
+                        repeatType:scheduleFieldsRepeatTypeInputValue,
+                        repeatPriodStart:startTimeInputValue.split("T")[0],
+                        repeatPriodEnd:"none"
+                    });
+                }
+
+                // 時間順に並び替え
+                events.schedules.sort((a, b) => a.startTime.localeCompare(b.startTime));
+
+                document.getElementById("scheduleNameInput").value = "";
+                document.getElementById("startTimeInput").value = "";
+                document.getElementById("endTimeInput").value = "";
+                document.getElementById("scheduleFieldsRepeatTypeInput").value="none";
+
+                saveToFireBase(); // ローカルストレージに保存
+                updateFunction();
+                //モーダルを閉じる
+                const addEventModalEl = document.getElementById("addEventModal");
+                addEventModalEl.style.display = "none";
+            }
+
+            //タスク追加ボタンの機能
+            function addTaskBtnFunction(){
+                const taskNameInputValue = document.getElementById("taskNameInput").value;
+                let deadlineInputValue = document.getElementById("deadlineInput").value;
+                let requiredTimeInputValue = document.getElementById("requiredTimeInput").value;
+
+
+                if (!taskNameInputValue) {
+                    alert("名前を入力してください！");
+                    return;
+                }
+
+                //空欄の場合
+                if(deadlineInputValue===""){
+                    deadlineInputValue="noDeadline"
+                }
+                if(requiredTimeInputValue===""){
+                    requiredTimeInputValue="0"
+                }
+
+                events.tasks.push({ 
+                    id:getNewTaskId(),
+                    taskName: taskNameInputValue, 
+                    deadline: deadlineInputValue, 
+                    requiredTime: requiredTimeInputValue,
+                });
+
+                // 時間順に並び替え
+                events.tasks.sort((a, b) => a.deadline.localeCompare(b.deadline));
+
+                document.getElementById("taskNameInput").value = "";
+                document.getElementById("deadlineInput").value = "";
+                document.getElementById("requiredTimeInput").value = "";
+
+                //saveToLocalStorage(); // ローカルストレージに保存
+                updateFunction();
+                //モーダルを閉じる
+                const addEventModalEl = document.getElementById("addEventModal");
+                addEventModalEl.style.display = "none";
+
+                saveToFireBase();
+            };
+
+            //変更する対象を選ぶボタンの機能
+            function openOptionChangeDateModal(scheduleId){
+                let scheduleList = events.schedules.filter(s => 
+                `${s.id}_${selectedDateString}` === scheduleId);
+
+                // 繰り返し設定が none でなければ `optionChangeDateModal` を表示
+                if (scheduleList[0].repeatType !== "none") {
+                    document.getElementById("optionChangeDateModal").style.display = "block";
+
+                    // ボタンのイベントリスナーを設定
+                    document.getElementById("allScheduleBtn").replaceWith(allScheduleBtn.cloneNode(true));
+                    document.getElementById("allScheduleBtn").addEventListener("click", () => {
+                        document.getElementById("optionChangeDateModal").style.display = "none";
+                        openEditScheduleModal(scheduleList);
+                    });
+
+                    document.getElementById("thisScheduleBtn").replaceWith(thisScheduleBtn.cloneNode(true));
+                    document.getElementById("thisScheduleBtn").addEventListener("click", () => {
+                        let schedule = scheduleList.find(s=>
+                        selectedDateString >= s.repeatPriodStart &&
+                        (s.repeatPriodEnd === "none" || selectedDateString <= s.repeatPriodEnd)
+                        );
+                        let newSchedule = {
+                            id: getNewScheduleId(),
+                            scheduleName: schedule.scheduleName,
+                            startTime: `${selectedDateString}T${schedule.startTime.split("T")[1]}`,
+                            endTime: `${selectedDateString}T${schedule.endTime.split("T")[1]}`,
+                            repeatType: "none",
+                            repeatPriodStart: selectedDateString,
+                            repeatPriodEnd: selectedDateString
+                        };
+                        events.schedules.push(newSchedule);
+
+                        events.schedules.push({ 
+                            id:schedule.id,
+                            scheduleName: schedule.scheduleName, 
+                            startTime: schedule.startTime, 
+                            endTime: schedule.endTime,
+                            repeatType:schedule.repeatType,
+                            repeatPriodStart:schedule.repeatPriodStart,
+                            repeatPriodEnd:changeDateToString(new Date(new Date(selectedDateString).setDate(new Date(selectedDateString).getDate()-1)))
+                        });
+                        events.schedules.push({ 
+                            id:schedule.id,
+                            scheduleName: schedule.scheduleName, 
+                            startTime: schedule.startTime, 
+                            endTime: schedule.endTime,
+                            repeatType:schedule.repeatType,
+                            repeatPriodStart:changeDateToString(new Date(new Date(selectedDateString).setDate(new Date(selectedDateString).getDate()+1))),
+                            repeatPriodEnd:schedule.repeatPriodEnd
+                        });
+
+                        events.schedules = events.schedules.filter(s=> !(s === schedule ));
+
+                        document.getElementById("optionChangeDateModal").style.display = "none";
+                        openEditScheduleModal([newSchedule]);        
+                    });
+
+                    document.getElementById("laterScheduleBtn").replaceWith(laterScheduleBtn.cloneNode(true));
+                    document.getElementById("laterScheduleBtn").addEventListener("click", () => {
+                        let laterSchedules = scheduleList.filter(s=>(s.repeatPriodEnd === "none" || selectedDateString <= s.repeatPriodStart));
+                        let newId=getNewScheduleId();
+                        let newScheduleList=[];
+                        if(laterSchedules){
+                            newScheduleList.push(...laterSchedules.map(schedule=>{
+                                events.schedules = events.schedules.filter(s=> !(s === schedule ));
+                                schedule = {
+                                id: newId,
+                                scheduleName: schedule.scheduleName,
+                                startTime: `${selectedDateString}T${schedule.startTime.split("T")[1]}`,
+                                endTime: `${selectedDateString}T${schedule.endTime.split("T")[1]}`,
+                                repeatType: schedule.repeatType,
+                                repeatPriodStart: schedule.repeatPriodStart,
+                                repeatPriodEnd: schedule.repeatPriodEnd
+                                };
+                                events.schedules.push(schedule);
+                            }));
+                        }
+                        let schedule = scheduleList.find(s=>
+                        selectedDateString >= s.repeatPriodStart &&
+                        (s.repeatPriodEnd === "none" || selectedDateString <= s.repeatPriodEnd)
+                        );
+                        schedule.repeatPriodEnd = changeDateToString(new Date(selectedDateString).setDate(new Date(selectedDateString).getDate()-1));
+                        let newSchedule={ 
+                            id:newId,
+                            scheduleName: schedule.scheduleName, 
+                            startTime: `${selectedDateString}T${schedule.startTime.split("T")[1]}`,
+                            endTime: `${selectedDateString}T${schedule.endTime.split("T")[1]}`,
+                            repeatType:schedule.repeatType,
+                            repeatPriodStart:selectedDateString,
+                            repeatPriodEnd:schedule.repeatPriodEnd
+                        }
+                        events.schedules.push(newSchedule);
+                        newScheduleList.push(newSchedule);
+
+
+                        document.getElementById("optionChangeDateModal").style.display = "none";
+                        openEditScheduleModal(newScheduleList);
+                    });
+
+                    document.getElementById("closeOptionChangeDateModalBtn").addEventListener("click", () => {
+                        document.getElementById("optionChangeDateModal").style.display = "none";
+                    });
+                }else{
+                // 繰り返し設定がない場合は通常の編集モーダルを開く
+                openEditScheduleModal(scheduleList);
+                }
+            }        
+
+
+
+            // 予定編集フォームを開く関数
+            function openEditScheduleModal(scheduleList) {
+                const editScheduleModalEl = document.getElementById("editScheduleModal");
+                if (scheduleList) {
+                    // 編集モーダルを表示
+                    editScheduleModalEl.style.display = "block";
+
+                    // 編集フォームに既存の値をセット
+                    document.getElementById("editScheduleNameInput").value = scheduleList[0].scheduleName;
+                    document.getElementById("editStartTimeInput").value = scheduleList[0].startTime;
+                    document.getElementById("editEndTimeInput").value = scheduleList[0].endTime;  
+                    document.getElementById("editScheduleModalRepeatTypeInput").value = scheduleList[0].repeatType;  
+                }else{
+                    return;
+                }           
+
+                // 予定変更ボタンのイベントを設定
+                document.getElementById("changeScheduleBtn").replaceWith(changeScheduleBtn.cloneNode(true));
+                document.getElementById("changeScheduleBtn").addEventListener("click", () => {
+                    scheduleList.forEach(schedule=>{
+                        schedule.scheduleName = document.getElementById("editScheduleNameInput").value;
+                        schedule.startTime = document.getElementById("editStartTimeInput").value;
+                        schedule.endTime = document.getElementById("editEndTimeInput").value;
+                    });
+                    // カレンダーを更新
+                    updateFunction();
+                    // モーダルを閉じる
+                    editScheduleModalEl.style.display = "none";
+                    saveToFireBase();
+                });
+
+                // 削除ボタンにクリックイベントを設定
+                document.getElementById("deleteScheduleBtn").replaceWith(deleteScheduleBtn.cloneNode(true));
+                document.getElementById("deleteScheduleBtn").addEventListener("click", () => {
+                    scheduleList.forEach(schedule=>{
+                        events.schedules = events.schedules.filter(s => s.id!==schedule.id)
+                    });
+                    // モーダルを閉じる
+                    editScheduleModalEl.style.display = "none";
+                    updateFunction();
+                    saveToFireBase();
+                });
+                //閉じるボタンの機能
+                document.getElementById("closeEditScheduleModalBtn").replaceWith(closeEditScheduleModalBtn.cloneNode(true));
+                document.getElementById("closeEditScheduleModalBtn").addEventListener("click", () => {
+                    editScheduleModalEl.style.display = "none";
+                });
+            };
+
+            // タスク編集フォームを開く関数
+            function openEditTaskModal(taskId) {
+                const task = events.tasks.find((t) => `${t.id}` === `${taskId}`);
+                const editTaskModalEl = document.getElementById("editTaskModal");
+                if (task) {
+                    // 編集モーダルを表示
+                    editTaskModalEl.style.display = "block";
+
+                    // 編集フォームに既存の値をセット
+                    document.getElementById("editTaskNameInput").value = task.taskName;
+                    document.getElementById("editDeadlineInput").value = task.deadline;
+                    document.getElementById("editRequiredTimeInput").value = task.requiredTime;  
+                }else{
+                    return;
+                }           
+
+                // 予定変更ボタンのイベントを設定
+                document.getElementById("changeTaskBtn").replaceWith(changeTaskBtn.cloneNode(true));
+                document.getElementById("changeTaskBtn").addEventListener("click", () => {
+                    task.taskName = document.getElementById("editTaskNameInput").value;
+                    task.deadline = document.getElementById("editDeadlineInput").value;
+                    task.requiredTime = document.getElementById("editRequiredTimeInput").value;
+                    // モーダルを閉じる
+                    editTaskModalEl.style.display = "none";
+                    // カレンダーを更新
+                    updateFunction();
+                    saveToFireBase();
+                });
+
+                // 削除ボタンにクリックイベントを設定
+                document.getElementById("deleteTaskBtn").replaceWith(deleteTaskBtn.cloneNode(true));
+                document.getElementById("deleteTaskBtn").addEventListener("click", () => {
+                    events.tasks = events.tasks.filter(t => !(t === task));
+                    // モーダルを閉じる
+                    editTaskModalEl.style.display = "none";
+                    updateFunction();
+                    saveToFireBase();
+                });
+                //閉じるボタンの機能
+                document.getElementById("closeEditTaskModalBtn").replaceWith(closeEditTaskModalBtn.cloneNode(true));
+                document.getElementById("closeEditTaskModalBtn").addEventListener("click", () => {
+                    editTaskModalEl.style.display = "none";
+                });
+            };
+
+                           
+            // 各日ごとの予定の合計時間を格納するオブジェクト
+            let dailyScheduleTime = {};
+            function makeDailyScheduleTime(){
+                availableTimePerDay = parseFloat(document.getElementById("availableTime").value);
+                dateTakeIntoAccountString = document.getElementById("accountDate").value;
+                availableTimePerUnscheduledDay =parseFloat(document.getElementById("unscheduledAvailableTime").value);
+
+                if (events.tasks.length === 0) {
+                    return ; // タスクが存在しない場合
+                }
+
+                // タスクの中で一番締め切り日が遅いものを取得
+                let latestTask = events.tasks.reduce((latest, task) => {
+                    return new Date(task.deadline) > new Date(latest.deadline) ? task : latest;
+                });
+
+                if(currentDateString>=latestTask.deadline){
+                    return;
+                }
+
+                 // dailyScheduleTime を初期化
+                dailyScheduleTime = {};
+                
+                // tempDate を currentDateString から開始し、latestTask.deadline までの日毎に処理する
+                let tempDate = new Date(currentDateString);
+                const endDate = new Date(latestTask.deadline);
+                
+                while (tempDate < endDate&&tempDate<=new Date(dateTakeIntoAccountString)) {
+                    // 現在の日付キー（"YYYY-MM-DD"）を生成
+                    const dateKey = changeDateToString(tempDate);
+                    // 当日の予定合計時間を初期化
+                    dailyScheduleTime[dateKey] = 0;
+                    
+                    // ① repeatType が "none" の場合
+                    events.schedules.filter(schedule => schedule.repeatType === "none")
+                        .forEach(schedule => {
+                            const scheduleStart = new Date(schedule.startTime);
+                            const scheduleEnd = new Date(schedule.endTime);
+                            // スケジュールの期間内に tempDate が含まれるか（日付単位で比較）
+                            if (changeDateToString(scheduleStart) <= dateKey && changeDateToString(scheduleEnd) >= dateKey) {
+                                // newStartTime の決定：
+                                // － schedule.startTime の日付が tempDate と一致していればそのまま、
+                                // － 一致していなければその日の 00:00 をセット
+                                const newStartTime = (changeDateToString(scheduleStart) === dateKey)
+                                    ? scheduleStart
+                                    : new Date(dateKey + "T00:00");
+                                
+                                // newEndTime の決定：
+                                // － schedule.endTime の日付が tempDate と一致していればそのまま、
+                                // － 一致していなければその日の 23:59 をセット
+                                const newEndTime = (changeDateToString(scheduleEnd) === dateKey)
+                                    ? scheduleEnd
+                                    : new Date(dateKey + "T23:59");
+                                
+                                // 時間差（ミリ秒 → 時間換算）を求め、当日の合計に加算
+                                const durationHours = (newEndTime - newStartTime) / (1000 * 60 * 60);
+                                dailyScheduleTime[dateKey] += durationHours;
+                            }
+                        });
+                    
+                    // ② repeatType が "weekly" の場合
+                    events.schedules.filter(schedule => schedule.repeatType === "weekly")
+                        .forEach(schedule => {
+                            const originalStart = new Date(schedule.startTime);
+                            const originalEnd = new Date(schedule.endTime);
+                            // tempDate が初回のスケジュールより前ならスキップ
+                            if (tempDate < originalStart) return;
+                            
+                            // 7日単位で足していき、tempDate を含む回を求める
+                            let occStart = new Date(originalStart);
+                            let occEnd = new Date(originalEnd);
+                            while (occEnd < tempDate) {
+                                occStart.setDate(occStart.getDate() + 7);
+                                occEnd.setDate(occEnd.getDate() + 7);
+                            }
+                            if (occStart <= tempDate && occEnd >= tempDate) {
+                                const newStartTime = (changeDateToString(occStart) === dateKey)
+                                    ? occStart
+                                    : new Date(dateKey + "T00:00");
+                                const newEndTime = (changeDateToString(occEnd) === dateKey)
+                                    ? occEnd
+                                    : new Date(dateKey + "T23:59");
+                                const durationHours = (newEndTime - newStartTime) / (1000 * 60 * 60);
+                                dailyScheduleTime[dateKey] += durationHours;
+                            }
+                        });
+                    
+                    // ③ repeatType が "monthly" の場合
+                    events.schedules.filter(schedule => schedule.repeatType === "monthly")
+                        .forEach(schedule => {
+                            const originalStart = new Date(schedule.startTime);
+                            const originalEnd = new Date(schedule.endTime);
+                            if (tempDate < originalStart) return;
+                            
+                            let occStart = new Date(originalStart);
+                            let occEnd = new Date(originalEnd);
+                            // 一月ごとに足して、tempDate を含む回を求める
+                            while (occEnd < tempDate) {
+                                occStart.setMonth(occStart.getMonth() + 1);
+                                occEnd.setMonth(occEnd.getMonth() + 1);
+                            }
+                            if (occStart <= tempDate && occEnd >= tempDate) {
+                                const newStartTime = (changeDateToString(occStart) === dateKey)
+                                    ? occStart
+                                    : new Date(dateKey + "T00:00");
+                                const newEndTime = (changeDateToString(occEnd) === dateKey)
+                                    ? occEnd
+                                    : new Date(dateKey + "T23:59");
+                                const durationHours = (newEndTime - newStartTime) / (1000 * 60 * 60);
+                                dailyScheduleTime[dateKey] += durationHours;
+                            }
+                        });
+                    
+                    // ④ repeatType が "yearly" の場合
+                    events.schedules.filter(schedule => schedule.repeatType === "yearly")
+                        .forEach(schedule => {
+                            const originalStart = new Date(schedule.startTime);
+                            const originalEnd = new Date(schedule.endTime);
+                            if (tempDate < originalStart) return;
+                            
+                            let occStart = new Date(originalStart);
+                            let occEnd = new Date(originalEnd);
+                            // 一年ごとに足して、tempDate を含む回を求める
+                            while (occEnd < tempDate) {
+                                occStart.setFullYear(occStart.getFullYear() + 1);
+                                occEnd.setFullYear(occEnd.getFullYear() + 1);
+                            }
+                            if (occStart <= tempDate && occEnd >= tempDate) {
+                                const newStartTime = (changeDateToString(occStart) === dateKey)
+                                    ? occStart
+                                    : new Date(dateKey + "T00:00");
+                                const newEndTime = (changeDateToString(occEnd) === dateKey)
+                                    ? occEnd
+                                    : new Date(dateKey + "T23:59");
+                                const durationHours = (newEndTime - newStartTime) / (1000 * 60 * 60);
+                                dailyScheduleTime[dateKey] += durationHours;
+                            }
+                        });
+                    
+                    // 最後に、当日の合計時間が10時間を超えていたら10時間にする
+                    if (dailyScheduleTime[dateKey] > availableTimePerDay) {
+                        dailyScheduleTime[dateKey] = availableTimePerDay;
+                    }
+                    
+                    // 次の日へ
+                    tempDate.setDate(tempDate.getDate() + 1);
+                }
+                console.log(dailyScheduleTime);
+            }
+
+            //タスクの猶予時間を計算する関数
+            function calculateRemainingTime(task) {
+                // 一日あたり使える時間（フォームから取得）
+                availableTimePerDay = parseFloat(document.getElementById("availableTime").value);
+                dateTakeIntoAccountString = document.getElementById("accountDate").value;
+                availableTimePerUnscheduledDay =parseFloat(document.getElementById("unscheduledAvailableTime").value);
+                const dateTakeIntoAccount = new Date(dateTakeIntoAccountString);
+
+                // 引数のタスクの締切日を取得（タスクの deadline は "YYYY-MM-DD" 形式と仮定）
+                const deadlineDate = new Date(task.deadline);
+
+                // 今日の日付。currentDateString は "YYYY-MM-DD" 形式の文字列でグローバルに定義されている前提です。
+                const today = new Date(currentDateString);
+
+                // 今日から締切日までの日数と、その間の各日の予定で使われる時間の合計を計算
+                let totalDays = 0;
+                let sumDailyScheduledTime = 0;
+                let tempDate = new Date(today);
+                while (tempDate < deadlineDate) {
+                    const dateKey = changeDateToString(tempDate); // "YYYY-MM-DD" 形式のキー
+                    // dailyScheduleTime にその日の予定使用時間があれば加算（無ければ 0）
+                    sumDailyScheduledTime += dailyScheduleTime[dateKey] || 0;
+                    totalDays++;
+                    // 次の日へ
+                    tempDate.setDate(tempDate.getDate() + 1);
+                }
+                // 総利用可能時間（予定を考慮する前）は「日数 × 一日あたり使える時間」
+                let totalAvailableTime = totalDays * availableTimePerDay;
+
+                // 各日の予定で使われる時間を差し引く
+                totalAvailableTime -= sumDailyScheduledTime;
+
+                // 自分を含む、締切日以前（または同日）のタスクの所要時間も差し引く
+                events.tasks.forEach(otherTask => {
+                    if (otherTask.deadline <= task.deadline) {
+                        totalAvailableTime -= Number(otherTask.requiredTime);
+                    }
+                });  
+                
+                //予定未確定の減算
+                const noAccountDaysLeft = Math.ceil((deadlineDate - dateTakeIntoAccount) / (1000 * 60 * 60 * 24)-1); // 考慮してる日から締切までの日数
+                if (noAccountDaysLeft > 0) {
+                    totalAvailableTime -= noAccountDaysLeft*(availableTimePerDay-availableTimePerUnscheduledDay);
+                }
+
+                return totalAvailableTime; 
+            }
+
+
+                
+            // window.onload = function() { // 認証状態が確定する onAuthStateChanged で呼び出すため、ここはコメントアウト
+            //     loadDataFromFirebase();
+            // };
+
+            //今日最低限すべきタスク時間を計算する関数
+            function calculateMinWorkTimeForToday() {
+                // 今日既に計算済みであれば、保存された値を返す
+                if (lastCalculatedMinWorkTimeDate === currentDateString && calculatedMinWorkTime !== null) {
+                    return calculatedMinWorkTime;
+                }
+
+                makeDailyScheduleTime(); // dailyScheduleTimeを最新の状態にする
+
+                const tasksWithDeadline = events.tasks.filter(task => task.deadline !== "noDeadline");
+
+                if (tasksWithDeadline.length === 0) {
+                    lastCalculatedMinWorkTimeDate = currentDateString;
+                    calculatedMinWorkTime = "タスクがありません";
+                    return calculatedMinWorkTime;
+                }
+
+                const tasksWithCalculatedRemainingTime = tasksWithDeadline.map(task => {
+                    return {
+                        ...task,
+                        remainingTime: calculateRemainingTime(task)
+                    };
+                }).filter(task => typeof task.remainingTime === 'number' && !isNaN(task.remainingTime));
+
+
+                if (tasksWithCalculatedRemainingTime.length === 0) {
+                    lastCalculatedMinWorkTimeDate = currentDateString;
+                    calculatedMinWorkTime = "有効なタスクなし";
+                    return calculatedMinWorkTime;
+                }
+                
+                tasksWithCalculatedRemainingTime.sort((a, b) => {
+                    if (a.remainingTime < b.remainingTime) return -1;
+                    if (a.remainingTime > b.remainingTime) return 1;
+                    if (new Date(a.deadline) < new Date(b.deadline)) return -1;
+                    if (new Date(a.deadline) > new Date(b.deadline)) return 1;
+                    return 0;
+                });
+
+                const criticalTask = tasksWithCalculatedRemainingTime[0];
+                const minRemainTime = criticalTask.remainingTime;
+                const criticalDeadlineDate = new Date(criticalTask.deadline + "T00:00:00"); // 時刻を考慮しない日付比較のため
+
+                if (minRemainTime === undefined) {
+                     lastCalculatedMinWorkTimeDate = currentDateString;
+                    calculatedMinWorkTime = "猶予時間計算不可";
+                    return calculatedMinWorkTime;
+                }
+
+
+                let availableTimesInPeriod = [];
+                let totalAvailableTimeInPeriod = 0;
+                let todaysAvailableTime = 0;
+
+                let tempDate = new Date(currentDateString + "T00:00:00");
+                const todayDateString = changeDateToString(tempDate);
+
+                const localAvailableTimePerDay = parseFloat(document.getElementById("availableTime").value) || 0;
+                const localDateTakeIntoAccountString = document.getElementById("accountDate").value;
+                const localAvailableTimePerUnscheduledDay = parseFloat(document.getElementById("unscheduledAvailableTime").value) || 0;
+                const dateTakeIntoAccount = localDateTakeIntoAccountString ? new Date(localDateTakeIntoAccountString + "T00:00:00") : null;
+
+
+                while (tempDate <= criticalDeadlineDate) {
+                    const dateKey = changeDateToString(tempDate);
+                    const scheduledTime = dailyScheduleTime[dateKey] || 0;
+                    
+                    let baseAvailableTime = 0;
+                    if (dateTakeIntoAccount && tempDate <= dateTakeIntoAccount) {
+                        baseAvailableTime = localAvailableTimePerDay;
+                    } else {
+                        baseAvailableTime = localAvailableTimePerUnscheduledDay;
+                    }
+
+                    const dailyTaskAvailableTime = Math.max(0, baseAvailableTime - scheduledTime);
+                    availableTimesInPeriod.push(dailyTaskAvailableTime);
+                    totalAvailableTimeInPeriod += dailyTaskAvailableTime;
+
+                    if (dateKey === todayDateString) {
+                        todaysAvailableTime = dailyTaskAvailableTime;
+                    }
+                    
+                    tempDate.setDate(tempDate.getDate() + 1);
+                }
+
+                if (totalAvailableTimeInPeriod <= 0 || todaysAvailableTime <=0) {
+                    lastCalculatedMinWorkTimeDate = currentDateString;
+                    // 猶予時間があり、今日以降に作業可能な時間がない場合、今日やるべき時間は0ではない。
+                    // この場合は、今日可能な限り作業するか、計画見直しが必要という意味合いになる。
+                    // ここでは「今日やるべき時間は算出不能（ただし、タスクはある）」といった表示にするか、
+                    // もしくは、minRemainTime が正なら、今日可能な時間をすべて使っても間に合わない可能性を示唆する。
+                    // ユーザーの計算式だと todaysAvailableTime - (割合 * minRemainTime) となり、
+                    // todaysAvailableTime が 0 だと - (0/0 * minRemainTime) や -(0/X * minRemainTime) = 0 になる。
+                    // totalAvailableTimeInPeriod が0でtodaysAvailableTimeも0なら、割合はNaN。
+                    if (minRemainTime > 0 && todaysAvailableTime <=0 && totalAvailableTimeInPeriod <=0 ) {
+                         calculatedMinWorkTime = `本日作業不可(猶予 ${minRemainTime.toFixed(2)}h)`;
+                    } else if (minRemainTime <= 0) { // 既に猶予時間が0以下なら、やるべき時間も0
+                        calculatedMinWorkTime = "0.00";
+                    }
+                    else {
+                        calculatedMinWorkTime = "計算期間内の作業可能時間が0";
+                    }
+                    return calculatedMinWorkTime;
+                }
+                
+                const todaysRatio = todaysAvailableTime / totalAvailableTimeInPeriod;
+                const timeToSubtractFromToday = todaysRatio * minRemainTime;
+                let resultMinWorkTime = todaysAvailableTime - timeToSubtractFromToday;
+
+                // 結果がマイナスの場合、その日に最低限必要な作業時間は0 (既に余裕があるか、他の日でカバーできる)
+                // ただし、ユーザーの意図としては「今日やらなくても間に合う時間」ではなく「今日やるべき時間」
+                // もし resultMinWorkTime がマイナスになったら、それは「今日やらなくても、その猶予時間は達成可能」という意味に近い。
+                // ここでは、0未満なら0とする。
+                resultMinWorkTime = Math.max(0, resultMinWorkTime);
+
+
+                lastCalculatedMinWorkTimeDate = currentDateString;
+                calculatedMinWorkTime = resultMinWorkTime.toFixed(2);
+                return calculatedMinWorkTime;
+            }
+
+
+            //更新
+            function updateFunction(){
+                saveToFireBase();
+                generateCalendar(displayedYear, displayedMonth);
+                generateTaskList();
+                generateTemporaryTaskList();
+                onclickCell(selectedDateString); // 更新表示
+
+                // 今日最低限すべきタスク時間を計算して表示
+                const minWorkTime = calculateMinWorkTimeForToday();
+                const displayEl = document.getElementById("minWorkTimeTodayDisplay");
+                if (typeof minWorkTime === 'string') { // "タスクがありません" などのメッセージの場合
+                    displayEl.textContent = `今日最低限すべきタスク時間: ${minWorkTime}`;
+                } else {
+                    displayEl.textContent = `今日最低限すべきタスク時間: ${minWorkTime} 時間`;
+                }
+            }
+
+            //タスクリストをソートする関数
+            function sortTableBy(key) {
+                if (currentSortKey === key) {
+                    sortAscending = !sortAscending; // 同じキーなら昇順/降順を切り替え
+                } else {
+                    currentSortKey = key;
+                    sortAscending = true; // 新しいキーなら昇順で開始
+                }
+                generateTaskList(); // ソート後にリストを再描画
+            }
+
+        </script>
+         <!-- Firebase SDK (Software Development Kit) を読み込む -->
+        <script type="module">
+                                    
+            // Firebase のモジュールをインポート
+            import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+            import { getFirestore, setDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";       
+            // Auth関連のモジュールをインポート
+            import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+            async function saveToFireBase() {
+                try {
+                    const user = auth.currentUser; // 現在のユーザーを取得
+                    if (user) { // ユーザーがログインしているか確認
+                        await setDoc(doc(db, "calendars", user.uid), { // ユーザーのUIDをドキュメントIDとして使用
+                            events: window.events,
+                            availableTimePerDay: window.availableTimePerDay,
+                            dateTakeIntoAccountString: window.dateTakeIntoAccountString,
+                            availableTimePerUnscheduledDay: window.availableTimePerUnscheduledDay
+                        });
+                        console.log("データをFirebaseに保存しました！ (UID: " + user.uid + ")");
+                    } else {
+                        console.error("ログインしていません。データを保存できませんでした。");
+                        // 必要であれば、ログインしていないユーザー向けの処理を追加できます
+                        // 例えば、ローカルストレージに保存するなど
+                    }
+                } catch (error) {
+                    console.error("データ保存エラー:", error);
+                }
+            }
+
+            async function loadDataFromFirebase() {
+                try {
+                    const user = auth.currentUser; // 現在のユーザーを取得
+                    let docId = "user1"; // デフォルトのドキュメントID
+                    if (user) { // ユーザーがログインしていれば、そのUIDを使用
+                        docId = user.uid;
+                        console.log("ログインユーザーのデータを読み込みます。 (UID: " + user.uid + ")");
+                    } else {
+                        console.log("ログインしていません。共有データを読み込みます。(user1)");
+                    }
+
+                    const docSnap = await getDoc(doc(db, "calendars", docId));
+                    if (docSnap.exists()) {
+                        const data = docSnap.data();
+                        window.events = data.events || { schedules: [], tasks: [] };
+                        window.availableTimePerDay = data.availableTimePerDay || "10";
+                        window.dateTakeIntoAccountString = data.dateTakeIntoAccountString || "2025-01-01";
+                        window.availableTimePerUnscheduledDay = data.availableTimePerUnscheduledDay || "2";
+                        console.log("データをFirebaseから取得しました！ (ID: " + docId + ")");
+                    } else {
+                        // ドキュメントが存在しない場合の初期化
+                        console.log("データが存在しません。(ID: " + docId + ")。空のカレンダーを表示します。");
+                        window.events = { schedules: [], tasks: [] };
+                        window.availableTimePerDay = "10";
+                        window.dateTakeIntoAccountString = "2025-01-01";
+                        window.availableTimePerUnscheduledDay = "2";
+                    }
+                        
+                    // 取得した値をHTMLの入力要素に反映
+                    document.getElementById("availableTime").value = window.availableTimePerDay;
+                    document.getElementById("accountDate").value = window.dateTakeIntoAccountString;                    
+                    document.getElementById("unscheduledAvailableTime").value = window.availableTimePerUnscheduledDay;
+
+                    // その後、HTML要素から値を読み込んで変数に設定
+                    let availableTimePerDay = parseFloat(document.getElementById("availableTime").value);
+                    let dateTakeIntoAccountString = document.getElementById("accountDate").value;
+                    let availableTimePerUnscheduledDay = parseFloat(document.getElementById("unscheduledAvailableTime").value);
+
+                    
+                    updateFunction();  // 取得したデータでカレンダーを更新
+                } catch (error) {
+                    console.error("データ取得エラー:", error);
+                }
+            }
+
+            
+     
+
+            const firebaseConfig = {
+                apiKey: "AIzaSyAwvwa-K-nqR0xrANSPOUQp4mweHlqQblA",
+                authDomain: "mycalendarapp-7ce3b.firebaseapp.com",
+                projectId: "mycalendarapp-7ce3b",
+                storageBucket: "mycalendarapp-7ce3b.firebasestorage.app",
+                messagingSenderId: "869662941519",
+                appId: "1:869662941519:web:0521aae8f76fbaecad253a",
+                measurementId: "G-E5CNLT1B8V"
+            };
+
+            
+            // Firebase を初期化
+            const app = initializeApp(firebaseConfig);
+            // Firestore インスタンスを作成
+            const db = getFirestore(app);
+            // Auth インスタンスを作成
+            const auth = getAuth(app);
+            
+            // 以下、後ほどFirestoreと連携する関数を定義します
+
+
+            window.loadDataFromFirebase=loadDataFromFirebase;
+            window.saveToFireBase=saveToFireBase;
+
+            // Googleログインボタンの要素を取得
+            const googleLoginButton = document.getElementById('google-login-button');
+            // ログアウトボタンの要素を取得
+            const logoutButton = document.getElementById('logout-button');
+
+            // Googleログインボタンがクリックされたときの処理
+            googleLoginButton.addEventListener('click', () => {
+            // GoogleAuthProvider のインスタンスを作成 (新しい形式に変更)
+            const provider = new GoogleAuthProvider();
+
+            // ポップアップウィンドウでGoogleログインを行う (新しい形式に変更)
+            signInWithPopup(auth, provider)
+                .then((result) => {
+                // ログイン成功時の処理
+                const user = result.user; // ログインしたユーザーの情報
+                console.log('ログイン成功:', user);
+                alert(user.displayName + 'さん、ようこそ！');
+                // ログイン後の処理 (例: ユーザー専用のデータをロードするなど)
+                // loadDataFromFirebaseForUser(user.uid); // 例: ユーザーIDに基づいてデータをロード
+                })
+                .catch((error) => {
+                // ログイン失敗時の処理
+                console.error('ログイン失敗:', error);
+                const errorCode = error.code;
+                const errorMessage = error.message;
+                alert('ログインに失敗しました。\\nエラーコード: ' + errorCode + '\\nエラーメッセージ: ' + errorMessage);
+                // エラーに応じてユーザーにフィードバックを表示するなどの処理を記述できます
+                });
+            });
+
+            // ログアウトボタンがクリックされたときの処理
+            logoutButton.addEventListener('click', () => {
+              auth.signOut().then(() => {
+                // ログアウト成功
+                console.log('ログアウトしました。');
+                alert('ログアウトしました。');
+                // loadDataFromFirebase(); // ログアウト後、共通のデータを読み込むか、ログイン画面に戻すなどの処理
+              }).catch((error) => {
+                // ログアウト失敗
+                console.error('ログアウト失敗:', error);
+                alert('ログアウトに失敗しました。');
+              });
+            });
+
+            // ユーザーのログイン状態を監視
+            onAuthStateChanged(auth, (user) => {
+              const loginStatusEl = document.getElementById('loginStatus'); // ログイン状態を表示する要素を取得
+              if (user) {
+                // ユーザーがログインしている場合
+                loginStatusEl.textContent = user.displayName + 'さんがログイン中です。';
+                console.log(user.displayName + 'さんがログイン中です。 (UID: ' + user.uid + ')');
+                googleLoginButton.style.display = 'none'; // ログインボタンを非表示
+                logoutButton.style.display = 'block'; // ログアウトボタンを表示
+
+                // ユーザー固有のデータを読み込むなどの処理
+                loadDataFromFirebase(); // ★ログイン状態が変わったらデータを再読み込み
+              } else {
+                // ユーザーがログアウトしている場合
+                loginStatusEl.textContent = 'ログアウトしています。';
+                console.log('ユーザーはログアウトしています。');
+                googleLoginButton.style.display = 'block'; // ログインボタンを表示
+                logoutButton.style.display = 'none'; // ログアウトボタンを非表示
+                loadDataFromFirebase(); // ★ログアウト状態でもデータを読み込み (この場合は "user1" が読み込まれる想定)
+              }
+            });
+
+
+            // Firestoreのモジュールと認証モジュールはすでにimportされています
+
+// user1のデータを自分のUIDのドキュメントにコピーする関数
+async function copyUser1DataToMyUID() {
+    // 現在ログインしているユーザーを取得
+    const user = auth.currentUser;
+    if (!user) {
+        alert("ログインしてください。");
+        return;
+    }
+    const myUID = user.uid;
+
+    // user1のデータを取得
+    const oldDocRef = doc(db, "calendars", "user1");
+    const oldDocSnap = await getDoc(oldDocRef);
+
+    if (!oldDocSnap.exists()) {
+        alert("user1のデータが見つかりません。");
+        return;
+    }
+
+    const data = oldDocSnap.data();
+
+    // 自分のUIDで新しいドキュメントを作成
+    const newDocRef = doc(db, "calendars", myUID);
+    await setDoc(newDocRef, data);
+
+    alert("データのコピーが完了しました！\n（動作確認後、user1のデータを削除してください）");
+}
+window.copyUser1DataToMyUID = copyUser1DataToMyUID;
+
+        </script>
+    </body>
+</html>

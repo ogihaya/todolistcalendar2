@@ -1,6 +1,6 @@
 // 必要な関数をSDKからインポートします
 import { initializeApp, getApps, getApp } from "firebase/app";
-import { getAuth } from "firebase/auth"; // Firebase Authentication を使う場合
+import { getAuth, GoogleAuthProvider } from "firebase/auth"; // Firebase Authentication を使う場合
 import { getFirestore } from "firebase/firestore"; // Firestore Database を使う場合
 import { getStorage } from "firebase/storage"; // Firebase Storage を使う場合
 // import { getAnalytics, isSupported } from "firebase/analytics"; // Firebase Analytics を使う場合 (後述)
@@ -32,6 +32,7 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
+const googleProvider = new GoogleAuthProvider();
 // let analytics; // Analytics はクライアントサイドでのみ初期化
 // if (typeof window !== 'undefined') {
 //   isSupported().then((supported) => {
@@ -41,4 +42,4 @@ const storage = getStorage(app);
 //   });
 // }
 
-export { app, auth, db, storage /*, analytics */ };
+export { app, auth, db, storage, googleProvider /*, analytics */ };

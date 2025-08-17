@@ -16,7 +16,7 @@ export default function AddEventModal({ setIsEventModalOpen }: AddEventModalProp
             onClick={() => setIsEventModalOpen(false)} // 背景クリックでモーダルを閉じる
         >
             {/* モーダル本体 */}
-            <form
+            <div
                 className="relative bg-white p-6 rounded shadow-lg w-full max-w-md"
                 onClick={(e) => e.stopPropagation()} // モーダル本体のクリックイベントが背景に伝播するのを防ぐ
             >
@@ -59,12 +59,12 @@ export default function AddEventModal({ setIsEventModalOpen }: AddEventModalProp
 
                 {/* 選択されたイベントタイプに応じたフォームを条件付きレンダリング */}
                 {eventType === "schedule" && (
-                    <AddScheduleModal />
+                    <AddScheduleModal onClose={() => setIsEventModalOpen(false)} />
                 )}
                 {eventType === "task" && (
-                    <AddTaskModal />
+                    <AddTaskModal onClose={() => setIsEventModalOpen(false)} />
                 )}
-            </form>
+            </div>
         </div>
     );
 }
