@@ -6,14 +6,29 @@ import { Schedule } from "@/types/event";
 // モーダルのプロパティの型定義
 interface AddScheduleModalProps {
     onClose: () => void; // モーダルを閉じる関数
+    selectedDate: Date;
 }
 
-export default function AddScheduleModal({ onClose }: AddScheduleModalProps) {
+export default function AddScheduleModal({ onClose, selectedDate }: AddScheduleModalProps) {
+    // 選択された日付の0:00を初期値として設定
+    const getInitialDateTime = () => {
+        const date = new Date(selectedDate);
+        date.setHours(0, 0, 0, 0);
+        // ローカルタイムゾーンを考慮したISO文字列形式で返す
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+
+        return `${year}-${month}-${day}T${hours}:${minutes}`;
+
+    };
     // フォームの状態を管理するstate
     const [formData, setFormData] = useState({
         name: "",
-        startTime: "",
-        endTime: "",
+        startTime: getInitialDateTime(),
+        endTime: getInitialDateTime(),
         repeat: "none" as const,
         location: "",
         memo: ""
@@ -42,7 +57,7 @@ export default function AddScheduleModal({ onClose }: AddScheduleModalProps) {
         }
 
         // 開始時刻が終了時刻より後の場合はエラー
-        if (new Date(formData.startTime) >= new Date(formData.endTime)) {
+        if (new Date(formData.startTime) > new Date(formData.endTime)) {
             alert("開始時刻は終了時刻より前である必要があります");
             return;
         }
@@ -84,7 +99,7 @@ export default function AddScheduleModal({ onClose }: AddScheduleModalProps) {
     return (
         <form onSubmit={handleSubmit}>
             <div>
-                <label>
+                <label className="block text-sm text-gray-600 mt-1 ">
                     予定名
                 </label>
                 <input
@@ -94,11 +109,12 @@ export default function AddScheduleModal({ onClose }: AddScheduleModalProps) {
                     onChange={handleInputChange}
                     placeholder="予定名を入力してください"
                     required
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
                 />
             </div>
 
             <div>
-                <label>
+                <label className="block text-sm text-gray-600 mt-1">
                     開始時刻
                 </label>
                 <input
@@ -107,11 +123,12 @@ export default function AddScheduleModal({ onClose }: AddScheduleModalProps) {
                     value={formData.startTime}
                     onChange={handleInputChange}
                     required
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
                 />
             </div>
 
             <div>
-                <label>
+                <label className="block text-sm text-gray-600 mt-1">
                     終了時刻
                 </label>
                 <input
@@ -120,17 +137,19 @@ export default function AddScheduleModal({ onClose }: AddScheduleModalProps) {
                     value={formData.endTime}
                     onChange={handleInputChange}
                     required
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
                 />
             </div>
 
             <div>
-                <label>
+                <label className="block text-sm text-gray-600 mt-1">
                     繰り返し
                 </label>
                 <select
                     name="repeat"
                     value={formData.repeat}
                     onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
                 >
                     <option value="none">なし</option>
                     <option value="daily">毎日</option>
@@ -141,7 +160,7 @@ export default function AddScheduleModal({ onClose }: AddScheduleModalProps) {
             </div>
 
             <div>
-                <label>
+                <label className="block text-sm text-gray-600 mt-1">
                     場所
                 </label>
                 <input
@@ -150,11 +169,12 @@ export default function AddScheduleModal({ onClose }: AddScheduleModalProps) {
                     value={formData.location}
                     onChange={handleInputChange}
                     placeholder="場所を入力してください"
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
                 />
             </div>
 
             <div>
-                <label>
+                <label className="block text-sm text-gray-600 mt-1">
                     メモ
                 </label>
                 <input
@@ -163,20 +183,23 @@ export default function AddScheduleModal({ onClose }: AddScheduleModalProps) {
                     value={formData.memo}
                     onChange={handleInputChange}
                     placeholder="メモを入力してください"
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
                 />
             </div>
 
-            <div>
+            <div className="flex gap-2 pt-2">
                 <button
                     type="button"
                     onClick={onClose}
                     disabled={isSubmitting}
+                    className="flex-1 px-4 py-2 text-sm border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50"
                 >
                     キャンセル
                 </button>
                 <button
                     type="submit"
                     disabled={isSubmitting}
+                    className="flex-1 px-4 py-2 text-sm bg-gray-800 text-white hover:bg-gray-700 disabled:opacity-50"
                 >
                     {isSubmitting ? "保存中..." : "予定を追加"}
                 </button>

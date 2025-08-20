@@ -15,8 +15,6 @@ export const getWeekDaysInScheduleRange = (startDate: Date, endDate: Date): numb
         // 次の日へ
         currentDate.setDate(currentDate.getDate() + 1);
     }
-
-    console.log("weekDays",weekDays);
     return weekDays;
 };
 

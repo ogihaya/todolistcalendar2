@@ -6,13 +6,24 @@ import { Task } from "@/types/event";
 // モーダルのプロパティの型定義
 interface AddTaskModalProps {
     onClose: () => void; // モーダルを閉じる関数
+    selectedDate: Date;
 }
 
-export default function AddTaskModal({ onClose }: AddTaskModalProps) {
+export default function AddTaskModal({ onClose, selectedDate }: AddTaskModalProps) {
+    const getInitialDateTime = () => {
+        const date = new Date(selectedDate);
+        date.setHours(0, 0, 0, 0);
+        // ローカルタイムゾーンを考慮したISO文字列形式で返す
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const day = String(date.getDate()).padStart(2, '0');
+
+        return `${year}-${month}-${day}`;
+    };
     // フォームの状態を管理するstate
     const [formData, setFormData] = useState({
         name: "",
-        deadline: "",
+        deadline: getInitialDateTime(),
         estimatedTime: "",
         memo: ""
     });
@@ -78,7 +89,7 @@ export default function AddTaskModal({ onClose }: AddTaskModalProps) {
     return (
         <form onSubmit={handleSubmit}>
             <div>
-                <label>
+                <label className="block text-sm text-gray-600 mt-1">
                     タスク名
                 </label>
                 <input
@@ -88,11 +99,12 @@ export default function AddTaskModal({ onClose }: AddTaskModalProps) {
                     onChange={handleInputChange}
                     placeholder="タスク名を入力してください"
                     required
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
                 />
             </div>
 
             <div>
-                <label>
+                <label className="block text-sm text-gray-600 mt-1">
                     締め切り日
                 </label>
                 <input
@@ -101,11 +113,12 @@ export default function AddTaskModal({ onClose }: AddTaskModalProps) {
                     value={formData.deadline}
                     onChange={handleInputChange}
                     required
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
                 />
             </div>
 
             <div>
-                <label>
+                <label className="block text-sm text-gray-600 mt-1">
                     所要時間（時間）
                 </label>
                 <input
@@ -114,11 +127,12 @@ export default function AddTaskModal({ onClose }: AddTaskModalProps) {
                     value={formData.estimatedTime}
                     onChange={handleInputChange}
                     required
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
                 />
             </div>
 
             <div>
-                <label>
+                <label className="block text-sm text-gray-600 mt-1">
                     メモ
                 </label>
                 <input
@@ -127,20 +141,23 @@ export default function AddTaskModal({ onClose }: AddTaskModalProps) {
                     value={formData.memo}
                     onChange={handleInputChange}
                     placeholder="メモを入力してください"
+                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
                 />
             </div>
 
-            <div>
+            <div className="flex gap-2 pt-2">
                 <button
                     type="button"
                     onClick={onClose}
                     disabled={isSubmitting}
+                    className="flex-1 px-4 py-2 text-sm border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50"
                 >
                     キャンセル
                 </button>
                 <button
                     type="submit"
                     disabled={isSubmitting}
+                    className="flex-1 px-4 py-2 text-sm bg-gray-800 text-white hover:bg-gray-700 disabled:opacity-50"
                 >
                     {isSubmitting ? "保存中..." : "タスクを追加"}
                 </button>

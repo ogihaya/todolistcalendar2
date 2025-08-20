@@ -28,9 +28,9 @@ export default function CalendarHeader({ currentYM, setCurrentYM }: CalendarHead
   return (
     <>
       <div className="flex justify-between">
-        <button onClick={navigateToPreviousMonth}>&lt;</button>
-        <div>{currentYM.year}年{currentYM.month + 1}月</div>
-        <button onClick={navigateToNextMonth}>&gt;</button>
+        <button onClick={navigateToPreviousMonth} className="text-lg border border-gray-600 rounded-sm px-4 hover:bg-gray-200 mb-1 ml-1">＜</button>
+        <div className="text-xl font-bold">{currentYM.year}年{currentYM.month + 1}月</div>
+        <button onClick={navigateToNextMonth} className="text-lg border border-gray-600 rounded-sm px-4 hover:bg-gray-200 mb-1 mr-1">＞</button>
       </div>
     </>
   );
