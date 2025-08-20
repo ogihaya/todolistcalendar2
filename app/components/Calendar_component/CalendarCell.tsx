@@ -7,9 +7,12 @@ interface CalendarCellProps {
   currentYM: CurrentYM;
   schedules: Schedule[]; // 追加：予定データを受け取る
   tasks: Task[];         // 追加：タスクデータを受け取る
+  selectedDate: Date;
+  setSelectedDate: (date: Date) => void;
 }
 
-export default function CalendarCell({ currentYM, schedules, tasks }: CalendarCellProps) {
+export default function CalendarCell({ currentYM, schedules, tasks, selectedDate, setSelectedDate }: CalendarCellProps) {
+
   // カレンダー生成に必要な日付情報を計算
   // 月の最終日を取得（翌月の0日目 = 当月の最終日）
   const daysInMonth = new Date(currentYM.year, currentYM.month + 1, 0).getDate();
@@ -50,22 +53,26 @@ export default function CalendarCell({ currentYM, schedules, tasks }: CalendarCe
       textClass += "opacity-50 "; // 他の月は半透明
     }
 
+    const isSelected = selectedDate.getFullYear() === processDate.getFullYear() && selectedDate.getMonth() === processDate.getMonth() && selectedDate.getDate() === processDate.getDate();
+
     // 日付セルを生成してリストに追加
     calendarCellList.push(
-      <div key={i} className="border border-gray-300">
+      <div key={i} className={`border border-gray-300 ${isSelected ? "border-red-500 border-2" : ""}`} onClick={() => {
+        setSelectedDate(processDate);
+      }}>
         <div
           className={textClass}
         >
           {processDate.getDate()} {/* 日付を表示 */}
         </div>
-        <div className="schedulecontents">
+        <div>
           {schedulesForDate.map(schedule => (
-            <div key={schedule.id}>{schedule.name}</div>
+            <div key={schedule.id} className="text-sm truncate bg-blue-100 rounded-sm m-1">{schedule.name}</div>
           ))}
         </div>
-        <div className="taskcontents">
+        <div>
           {tasksForDate.map(task => (
-            <div key={task.id}>{task.name}</div>
+            <div key={task.id} className="text-sm truncate bg-green-100 rounded-sm m-1">{task.name}</div>
           ))}
         </div>
       </div>

@@ -10,7 +10,7 @@ export default function DaysHeader() {
                   key={day}
                   // 条件によってクラスを切り替えます
                   className={
-                    "border border-gray-300 " +
+                    "border border-gray-300 text-center " +
                     (index === 0
                       ? "text-red-500"   // 日曜日は赤
                       : index === 6
