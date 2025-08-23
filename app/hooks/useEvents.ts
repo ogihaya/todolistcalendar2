@@ -1,7 +1,7 @@
 // Reactの必要な機能をインポート
 import { useState, useEffect } from 'react';
 // Firebase Firestoreから必要な関数をインポート
-import { collection, getDocs, onSnapshot } from 'firebase/firestore';
+import { collection, getDocs, onSnapshot, Timestamp } from 'firebase/firestore';
 // Firebase認証から必要な関数と型をインポート
 import { onAuthStateChanged, User } from 'firebase/auth';
 // プロジェクト内のFirebase設定と型定義をインポート
@@ -58,7 +58,8 @@ export function useEvents() {
             repeatStartDate: doc.data().repeatStartDate?.toDate(), // 繰り返し開始日
             repeatEndDate: doc.data().repeatEndDate?.toDate() || null, // 繰り返し終了日
             location: doc.data().location, // 場所
-            memo: doc.data().memo // メモ
+            memo: doc.data().memo, // メモ
+            blackoutDates: doc.data().blackoutDates?.map((date: Timestamp) => date.toDate())
           }));
           setSchedules(schedulesData);
           setLoading(false);

@@ -16,6 +16,7 @@ export interface Schedule {
   repeatEndDate: Date | null;
   location?: string;
   memo?: string;
+  blackoutDates?: Date[];
 }
 
 // タスクの型定義

@@ -8,9 +8,10 @@ interface EventDetailsProps {
     setIsEditTaskModalOpen: (isEditTaskModalOpen: boolean) => void;
     setEditingSchedule: (editingSchedule: Schedule) => void;
     setEditingTask: (editingTask: Task) => void;
+    setRepeatEditOpitonModalOpen: (repeatEditOpitonModalOpen: boolean) => void;
 }
 
-export default function EventDetails({ selectedDate, selectedSchedule, selectedTask, setIsEditScheduleModalOpen, setIsEditTaskModalOpen, setEditingSchedule, setEditingTask }: EventDetailsProps) {
+export default function EventDetails({ selectedDate, selectedSchedule, selectedTask, setIsEditScheduleModalOpen, setIsEditTaskModalOpen, setEditingSchedule, setEditingTask, setRepeatEditOpitonModalOpen }: EventDetailsProps) {
     // 日付を日本語形式でフォーマットする関数
     const formatDate = (date: Date) => {
         const options: Intl.DateTimeFormatOptions = {
@@ -67,8 +68,13 @@ export default function EventDetails({ selectedDate, selectedSchedule, selectedT
                             </div>
                             <div>
                                 <button className="text-sm text-gray-600 mr-6 my-1 bg-gray-50 border border-gray-600 rounded-sm px-1 hover:bg-gray-300" onClick={() => {
-                                    setIsEditScheduleModalOpen(true);
-                                    setEditingSchedule(schedule);
+                                    if (schedule.repeat !== "none") {
+                                        setRepeatEditOpitonModalOpen(true);
+                                        setEditingSchedule(schedule);
+                                    } else {
+                                        setIsEditScheduleModalOpen(true);
+                                        setEditingSchedule(schedule);
+                                    }
                                 }}>編集</button>
                             </div>
                         </div>
