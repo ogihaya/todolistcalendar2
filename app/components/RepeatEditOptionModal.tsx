@@ -91,7 +91,7 @@ export default function RepeatEditOptionModal({ setRepeatEditOpitonModalOpen, se
 
             await updateDoc(doc(db, "users", userId, 'schedules', editingSchedule.id), updatedSchedule);
 
-            const { id, ...editingScheduleWithoutId } = editingSchedule;
+            const { id: _, ...editingScheduleWithoutId } = editingSchedule;
             const newSchedule: Omit<Schedule, 'id'> = {
                 ...editingScheduleWithoutId,
                 startTime: makeStartTime(addBlackoutDates, editingSchedule.startTime),
@@ -131,7 +131,7 @@ export default function RepeatEditOptionModal({ setRepeatEditOpitonModalOpen, se
             const previousDay = new Date(selectedDate);
             previousDay.setDate(selectedDate.getDate() - 1);
 
-            const { id, ...scheduleWithoutId } = editingSchedule;
+            const { id: _, ...scheduleWithoutId } = editingSchedule;
             const scheduleBefore: Omit<Schedule, 'id'> = {
                 ...scheduleWithoutId,
                 repeatEndDate: previousDay,

@@ -24,7 +24,7 @@ export default function CalendarCell({ currentYM, schedules, tasks, selectedDate
   const dayOfLastDate = new Date(currentYM.year, currentYM.month + 1, 0).getDay();
 
   // カレンダーセルのリストを格納する配列
-  let calendarCellList = [];
+  const calendarCellList = [];
 
   // カレンダーの日付セルを生成
   // 先月の残り日数、当月の日数、来月の日数を含めてループ
