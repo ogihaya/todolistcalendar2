@@ -185,26 +185,28 @@ export default function RepeatEditOptionModal({ setRepeatEditOpitonModalOpen, se
                 >
                     ×
                 </button>
+                <div className="flex flex-col gap-2 mt-7">
                 <button onClick={() => {
                     setRepeatEditOpitonModalOpen(false);
                     setIsEditScheduleModalOpen(true);
                 }}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                    className= "px-4 py-2 text-sm bg-white-800 border border-gray-300 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
                 >すべての予定を編集</button>
                 <button onClick={() => {
                     processThisSchedule();
                     setRepeatEditOpitonModalOpen(false);
                     setIsEditScheduleModalOpen(true);
                 }}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                    className="px-4 py-2 text-sm bg-white-800 border border-gray-300 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
                 >この予定だけを編集</button>
                 <button onClick={() => {
                     processFutureSchedules();
                     setRepeatEditOpitonModalOpen(false);
                     setIsEditScheduleModalOpen(true);
                 }}
-                    className="bg-blue-500 text-white px-4 py-2 rounded-md"
+                    className="px-4 py-2 text-sm bg-white-800 border border-gray-300 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
                 >以降の予定を編集</button>
+                </div>
             </div>
         </div>
     );
