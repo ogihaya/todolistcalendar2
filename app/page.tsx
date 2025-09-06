@@ -11,6 +11,7 @@ import { useEvents } from "@/hooks/useEvents";
 import { getSchedulesForDate, getTasksForDate } from "@/components/Calendar_component/CalendarCellUtil";
 import EditScheduleModal from "@/components/EditScheduleModal";
 import EditTaskModal from "@/components/EditTaskModal";
+import RepeatEditOptionModal from "@/components/RepeatEditOptionModal";
 
 // メインページコンポーネント
 export default function Home() {
@@ -30,6 +31,8 @@ export default function Home() {
       const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
       const [editingTask, setEditingTask] = useState<Task | null>(null);
 
+      const [repeatEditOpitonModalOpen, setRepeatEditOpitonModalOpen] = useState(false);
+
   // データが読み込まれたら、選択された日付のイベントを更新
   useEffect(() => {
     setSelectedSchedule(getSchedulesForDate(schedules, selectedDate));
@@ -48,7 +51,7 @@ export default function Home() {
         <Calendar selectedDate={selectedDate} setSelectedDate={setSelectedDate} setSelectedSchedule={setSelectedSchedule} setSelectedTask={setSelectedTask} today={today} schedules={schedules} tasks={tasks} loading={loading} error={error} />
       </div>
       <div className="my-1 mx-2">
-        <EventDetails selectedDate={selectedDate} selectedSchedule={selectedSchedule} selectedTask={selectedTask} setIsEditScheduleModalOpen={setIsEditScheduleModalOpen} setIsEditTaskModalOpen={setIsEditTaskModalOpen} setEditingSchedule={setEditingSchedule} setEditingTask={setEditingTask} />
+        <EventDetails selectedDate={selectedDate} selectedSchedule={selectedSchedule} selectedTask={selectedTask} setIsEditScheduleModalOpen={setIsEditScheduleModalOpen} setIsEditTaskModalOpen={setIsEditTaskModalOpen} setEditingSchedule={setEditingSchedule} setEditingTask={setEditingTask} setRepeatEditOpitonModalOpen={setRepeatEditOpitonModalOpen} />
       </div>
       <div className="flex justify-end">
         <button onClick={openEventModal} className="text-lg font-bold border border-gray-600 rounded-sm px-6 hover:bg-gray-200 mr-4">＋イベント追加</button>
@@ -56,7 +59,7 @@ export default function Home() {
       {isEventModalOpen && <AddEventModal setIsEventModalOpen={setIsEventModalOpen} selectedDate={selectedDate} />}
       {isEditScheduleModalOpen && <EditScheduleModal setIsEditScheduleModalOpen={setIsEditScheduleModalOpen} editingSchedule={editingSchedule} />}
       {isEditTaskModalOpen && <EditTaskModal setIsEditTaskModalOpen={setIsEditTaskModalOpen} editingTask={editingTask} />}
-
+      {repeatEditOpitonModalOpen && <RepeatEditOptionModal setRepeatEditOpitonModalOpen={setRepeatEditOpitonModalOpen} setIsEditScheduleModalOpen={setIsEditScheduleModalOpen} editingSchedule={editingSchedule} setEditingSchedule={setEditingSchedule} selectedDate={selectedDate} />}
     </>
   );
 }

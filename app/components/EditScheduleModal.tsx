@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db, auth } from "@/lib/firebase";
 import { Schedule } from "@/types/event";
@@ -30,6 +30,17 @@ export default function EditScheduleModal({ setIsEditScheduleModalOpen, editingS
         location: editingSchedule?.location || "",
         memo: editingSchedule?.memo || ""
     });
+
+    useEffect(() => {
+        setFormData({
+            name: editingSchedule?.name || "",
+            startTime: formatDateTimeForInput(editingSchedule?.startTime || new Date()),
+            endTime: formatDateTimeForInput(editingSchedule?.endTime || new Date()),
+            repeat: editingSchedule?.repeat || "none",
+            location: editingSchedule?.location || "",
+            memo: editingSchedule?.memo || ""
+        });
+    }, [editingSchedule]);
 
     // 送信中の状態を管理
     const [isSubmitting, setIsSubmitting] = useState(false);
@@ -63,26 +74,25 @@ export default function EditScheduleModal({ setIsEditScheduleModalOpen, editingS
         setIsSubmitting(true); // 送信開始
 
         try {
+            if (!editingSchedule) return;
+
             // 現在のユーザーIDを取得
             const userId = auth.currentUser?.uid;
             if (!userId) {
                 throw new Error('ユーザーがログインしていません');
             }
 
-            // 更新するデータを作成
-            const updatedData = {
+            const updatedSchedule = {
                 name: formData.name,
                 startTime: new Date(formData.startTime),
                 endTime: new Date(formData.endTime),
                 repeat: formData.repeat,
                 repeatStartDate: new Date(new Date(formData.startTime).setHours(0, 0, 0, 0)),
                 location: formData.location,
-                memo: formData.memo
+                memo: formData.memo,
             };
 
-            // Firestoreのドキュメントを更新
-            const scheduleRef = doc(db, "users", userId, 'schedules', editingSchedule?.id || "");
-            await updateDoc(scheduleRef, updatedData);
+            await updateDoc(doc(db, "users", userId, 'schedules', editingSchedule.id), updatedSchedule);
 
             setIsEditScheduleModalOpen(false); // モーダルを閉じる
 
@@ -108,8 +118,7 @@ export default function EditScheduleModal({ setIsEditScheduleModalOpen, editingS
             }
 
             // Firestoreのドキュメントを削除
-            const scheduleRef = doc(db, "users", userId, 'schedules', editingSchedule.id);
-            await deleteDoc(scheduleRef);
+            await deleteDoc(doc(db, "users", userId, 'schedules', editingSchedule.id));
 
             setIsEditScheduleModalOpen(false);
 
@@ -196,7 +205,7 @@ export default function EditScheduleModal({ setIsEditScheduleModalOpen, editingS
                             className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
                         >
                             <option value="none">なし</option>
-                            <option value="daily">毎日</option>
+                            {/* <option value="daily">毎日</option> */}
                             <option value="weekly">毎週</option>
                             <option value="monthly">毎月</option>
                             <option value="yearly">毎年</option>

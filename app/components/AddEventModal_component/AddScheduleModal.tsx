@@ -80,7 +80,8 @@ export default function AddScheduleModal({ onClose, selectedDate }: AddScheduleM
                 repeatStartDate: new Date(new Date(formData.startTime).setHours(0, 0, 0, 0)), // 繰り返し開始日は開始時刻の0時0分0秒
                 repeatEndDate: null,
                 location: formData.location,
-                memo: formData.memo
+                memo: formData.memo,
+                blackoutDates: []
             };
 
             // Firestoreの'schedules'コレクションにデータを追加
@@ -152,7 +153,7 @@ export default function AddScheduleModal({ onClose, selectedDate }: AddScheduleM
                     className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
                 >
                     <option value="none">なし</option>
-                    <option value="daily">毎日</option>
+                    {/* <option value="daily">毎日</option> */}
                     <option value="weekly">毎週</option>
                     <option value="monthly">毎月</option>
                     <option value="yearly">毎年</option>

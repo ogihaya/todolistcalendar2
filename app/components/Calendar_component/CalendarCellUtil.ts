@@ -103,17 +103,23 @@ export const getSchedulesForDate = (schedules: Schedule[], processDate: Date): S
         if (schedule.repeatEndDate !== null && schedule.repeatEndDate < processDate) {
             return false;
         }
-        if (schedule.repeat === "weekly") {
+        if (schedule.blackoutDates && schedule.blackoutDates.some(blackoutDate => blackoutDate.getFullYear() === processDate.getFullYear() && blackoutDate.getMonth() === processDate.getMonth() && blackoutDate.getDate() === processDate.getDate())) {
+            return false;
+        }
+        if (schedule.repeat === "daily") {
+            return processDate >= startDate && processDate >= repeatStartDate;
+        }
+        else if (schedule.repeat === "weekly") {
             const weekDays = getWeekDaysInScheduleRange(startDate, endDate);
-            return weekDays.includes(processDate.getDay()) && processDate >= startDate && processDate <= repeatStartDate;
+            return weekDays.includes(processDate.getDay()) && processDate >= startDate && processDate >= repeatStartDate;
         } else if (schedule.repeat === "monthly") {
             const monthDays = getMonthDaysInScheduleRange(startDate, endDate);
-            return monthDays.includes(processDate.getDate()) && processDate >= startDate && processDate <= repeatStartDate;
+            return monthDays.includes(processDate.getDate()) && processDate >= startDate && processDate >= repeatStartDate;
         } else if (schedule.repeat === "yearly") {
             const yearMonthDays = getYearMonthDaysInScheduleRange(startDate, endDate);
             return yearMonthDays.some(({ month, day }) =>
                 month === processDate.getMonth() && day === processDate.getDate()
-            ) && processDate >= startDate && processDate <= repeatStartDate;
+            ) && processDate >= startDate && processDate >= repeatStartDate;
         } else {
             const noRepeatScheduleRange = getNoRepeatScheduleRange(startDate, endDate);
             return noRepeatScheduleRange.some(({ year, month, day }) =>
