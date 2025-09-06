@@ -1,7 +1,7 @@
 // Reactの必要な機能をインポート
 import { useState, useEffect } from 'react';
 // Firebase Firestoreから必要な関数をインポート
-import { collection, getDocs, onSnapshot, Timestamp } from 'firebase/firestore';
+import { collection, onSnapshot, Timestamp } from 'firebase/firestore';
 // Firebase認証から必要な関数と型をインポート
 import { onAuthStateChanged, User } from 'firebase/auth';
 // プロジェクト内のFirebase設定と型定義をインポート
@@ -64,7 +64,7 @@ export function useEvents() {
           setSchedules(schedulesData);
           setLoading(false);
         },
-        (error) => {
+        (_error) => {
           setError('予定データの取得に失敗しました');
           setLoading(false);
         }
@@ -85,7 +85,7 @@ export function useEvents() {
           setTasks(tasksData);
           setLoading(false);
         },
-        (error) => {
+        (_error) => {
           setError('タスクデータの取得に失敗しました');
           setLoading(false);
         }
