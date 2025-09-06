@@ -254,7 +254,7 @@ export default function EditScheduleModal({ setIsEditScheduleModalOpen, editingS
                             disabled={isSubmitting}
                             className="flex-1 px-4 py-2 text-sm bg-gray-800 text-white hover:bg-gray-700 disabled:opacity-50"
                         >
-                            {isSubmitting ? "更新中..." : "予定を更新"}
+                            {isSubmitting ? "更新中..." : "更新"}
                         </button>
                         <button
                             type="button"
@@ -262,7 +262,7 @@ export default function EditScheduleModal({ setIsEditScheduleModalOpen, editingS
                             disabled={isSubmitting || isDeleting}
                             className="flex-1 px-4 py-2 text-sm bg-red-600 text-white hover:bg-red-700 disabled:opacity-50"
                         >
-                            {isDeleting ? "削除中..." : "予定を削除"}
+                            {isDeleting ? "削除中..." : "削除"}
                         </button>
                     </div>
                 </form>

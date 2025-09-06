@@ -1,5 +1,3 @@
-import { auth, db } from "@/lib/firebase";
-import { collection, query, where, getDocs, writeBatch } from "firebase/firestore";
 import { Schedule } from "@/types/event";
 import { getWeekDaysInScheduleRange } from "@/components/Calendar_component/CalendarCellUtil";
 

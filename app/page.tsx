@@ -27,11 +27,11 @@ export default function Home() {
   const [selectedDate, setSelectedDate] = useState<Date>(todayDate);
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule[]>([]); // 空配列で初期化
   const [selectedTask, setSelectedTask] = useState<Task[]>([]); // 空配列で初期化
-      // 編集モーダルの状態を管理
-      const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
-      const [editingTask, setEditingTask] = useState<Task | null>(null);
+  // 編集モーダルの状態を管理
+  const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-      const [repeatEditOpitonModalOpen, setRepeatEditOpitonModalOpen] = useState(false);
+  const [repeatEditOpitonModalOpen, setRepeatEditOpitonModalOpen] = useState(false);
 
   // データが読み込まれたら、選択された日付のイベントを更新
   useEffect(() => {
@@ -48,7 +48,7 @@ export default function Home() {
     <>
       <LoginButton />
       <div className="my-1 mx-2">
-        <Calendar selectedDate={selectedDate} setSelectedDate={setSelectedDate} setSelectedSchedule={setSelectedSchedule} setSelectedTask={setSelectedTask} today={today} schedules={schedules} tasks={tasks} loading={loading} error={error} />
+        <Calendar selectedDate={selectedDate} setSelectedDate={setSelectedDate} today={today} schedules={schedules} tasks={tasks} loading={loading} error={error} />
       </div>
       <div className="my-1 mx-2">
         <EventDetails selectedDate={selectedDate} selectedSchedule={selectedSchedule} selectedTask={selectedTask} setIsEditScheduleModalOpen={setIsEditScheduleModalOpen} setIsEditTaskModalOpen={setIsEditTaskModalOpen} setEditingSchedule={setEditingSchedule} setEditingTask={setEditingTask} setRepeatEditOpitonModalOpen={setRepeatEditOpitonModalOpen} />
