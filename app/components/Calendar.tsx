@@ -30,17 +30,6 @@ export default function Calendar({ selectedDate, setSelectedDate, setSelectedSch
     month: today.getMonth()
   });
 
-    // useEffectをループの外に移動
-    useEffect(() => {
-      // 選択された日付の予定とタスクを取得
-      const schedulesForDate = getSchedulesForDate(schedules, selectedDate);
-      const tasksForDate = getTasksForDate(tasks, selectedDate);
-      
-      // 選択された予定とタスクを更新
-      setSelectedSchedule(schedulesForDate);
-      setSelectedTask(tasksForDate);
-    }, [selectedDate, schedules, tasks]);
-
 
   // ローディング中の表示
   if (loading) {
