@@ -2,7 +2,7 @@ import { TempTask } from "@/types/event";
 import { useState } from "react";
 import { auth } from "@/lib/firebase";
 import { db } from "@/lib/firebase";
-import { doc, updateDoc, deleteDoc, addDoc, collection } from "firebase/firestore";
+import { doc, deleteDoc, addDoc, collection } from "firebase/firestore";
 
 interface EditTempTaskModalProps {
     setIsEditTempTaskModalOpen: (isEditTempTaskModalOpen: boolean) => void;

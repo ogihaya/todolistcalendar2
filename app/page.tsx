@@ -2,7 +2,6 @@
 
 import Calendar from "@/components/Calendar";
 import AddEventModal from "@/components/AddEventModal";
-import LoginButton from "@/components/LoginButton";
 import { useEffect, useState } from "react";
 import EventDetails from "@/components/EventDetails";
 import { Schedule } from "@/types/event";

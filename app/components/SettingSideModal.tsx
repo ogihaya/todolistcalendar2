@@ -2,7 +2,7 @@ import LoginButton from "@/components/LoginButton";
 import { MdSettings } from "react-icons/md";
 import { useState, useEffect } from "react";
 import { Settings } from "@/types/event";
-import { updateDoc, doc, setDoc } from "firebase/firestore";
+import { doc, setDoc } from "firebase/firestore";
 import { auth } from "@/lib/firebase";
 import { db } from "@/lib/firebase";
 
