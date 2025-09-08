@@ -31,3 +31,16 @@ export interface Task {
 
 // イベントのユニオン型
 export type Event = Schedule | Task; 
+
+// 設定の型定義
+export interface Settings {
+  availableTimePerDay: number;
+  dateTakeIntoAccount: Date;
+  availableTimePerUnscheduledDay: number;
+}
+
+// 一時的なタスクの型定義
+export interface TempTask {
+  id: string;
+  name: string;
+}

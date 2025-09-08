@@ -1,5 +1,5 @@
 import { Schedule } from "@/types/event";
-import { getWeekDaysInScheduleRange } from "@/components/Calendar_component/CalendarCellUtil";
+import { getWeekDaysInScheduleRange } from "@/Utils/CalendarCellUtil";
 
 /*
 export const deleteSchedulesByLink = async (link: string) => {
