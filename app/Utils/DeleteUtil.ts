@@ -34,7 +34,6 @@ export const addBlackoutDatesFunction = (editingSchedule: Schedule, selectedDate
     const editingScheduleDays = getWeekDaysInScheduleRange(startDate, endDate);
 
     const processDate = new Date(selectedDate);
-    processDate.setHours(0, 0, 0, 0);
 
     const addBlackoutDates: Date[] = [];
 

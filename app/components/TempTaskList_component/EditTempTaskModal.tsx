@@ -14,12 +14,10 @@ interface EditTempTaskModalProps {
 export default function EditTempTaskModal({ setIsEditTempTaskModalOpen, editingTempTask, selectedDate }: EditTempTaskModalProps) {
 
     const getInitialDateTime = () => {
-        const date = new Date(selectedDate);
-        date.setHours(0, 0, 0, 0);
         // ローカルタイムゾーンを考慮したISO文字列形式で返す
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
+        const year = selectedDate.getFullYear();
+        const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+        const day = String(selectedDate.getDate()).padStart(2, '0');
 
         return `${year}-${month}-${day}`;
     };

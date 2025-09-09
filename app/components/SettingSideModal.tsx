@@ -69,10 +69,12 @@ export default function SettingSideModal({ setIsSettingSideModalOpen, settings }
             if (!userId) {
                 throw new Error('ユーザーがログインしていません');
             }
+            const dateTakeIntoAccount = new Date(formData.dateTakeIntoAccount);
+            dateTakeIntoAccount.setHours(0, 0, 0, 0);
             // Firestoreに保存するデータを作成
             const settingsData: Omit<Settings, 'id'> = {
                 availableTimePerDay: availableTimePerDay,
-                dateTakeIntoAccount: new Date(formData.dateTakeIntoAccount),
+                dateTakeIntoAccount: dateTakeIntoAccount,
                 availableTimePerUnscheduledDay: availableTimePerUnscheduledDay,
             };
 
