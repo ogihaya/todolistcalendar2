@@ -59,13 +59,13 @@ export default function TempTaskList({ tempTasks, selectedDate }: TempTaskListPr
         <div className="h-60 overflow-y-auto border border-gray-800 p-2">
             <form onSubmit={handleSubmit} className="flex gap-2 justify-between">
                 <input type="text" placeholder="タスク名" value={taskName} onChange={(e) => setTaskName(e.target.value)} className="border border-gray-400" />
-                <button disabled={isSubmitting} className="border border-gray-600 px-1 rounded-md">一時タスク追加</button>
+                <button disabled={isSubmitting} className="border border-gray-600 px-1 rounded-md hover:bg-gray-200">一時タスク追加</button>
             </form>
             <div>
                 {tempTasks.map((tempTask) => (
                     <div key={tempTask.id} className="flex gap-2 justify-between mt-1 bg-gray-200">
                         <div className="ml-2">{tempTask.name}</div>
-                        <button onClick={() => handleEdit(tempTask)} className="border border-gray-600 px-1 mr-2">編集</button>
+                        <button onClick={() => handleEdit(tempTask)} className="bg-white border border-gray-600 px-1 mr-2 hover:bg-gray-200">編集</button>
                     </div>
                 ))}
             </div>
