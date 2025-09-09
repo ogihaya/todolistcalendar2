@@ -1,4 +1,6 @@
 import { Schedule, Task } from "@/types/event";
+import { FaMapMarkerAlt, FaStickyNote, FaCalendarAlt, FaClock, FaEdit } from "react-icons/fa";
+import { isHoliday } from "japanese-holidays";
 
 interface EventDetailsProps {
     selectedDate: Date;
@@ -12,15 +14,41 @@ interface EventDetailsProps {
 }
 
 export default function EventDetails({ selectedDate, selectedSchedule, selectedTask, setIsEditScheduleModalOpen, setIsEditTaskModalOpen, setEditingSchedule, setEditingTask, setRepeatEditOpitonModalOpen }: EventDetailsProps) {
-    // 日付を日本語形式でフォーマットする関数
-    const formatDate = (date: Date) => {
+    // 日付を日本語形式でフォーマットする関数（曜日なし）
+    const formatDateWithoutWeekday = (date: Date) => {
         const options: Intl.DateTimeFormatOptions = {
             year: 'numeric',
             month: 'long',
-            day: 'numeric',
+            day: 'numeric'
+        };
+        return date.toLocaleDateString('ja-JP', options);
+    };
+
+    // 曜日を日本語形式でフォーマットする関数
+    const formatWeekday = (date: Date) => {
+        const options: Intl.DateTimeFormatOptions = {
             weekday: 'short'
         };
         return date.toLocaleDateString('ja-JP', options);
+    };
+
+    // 曜日の色を取得する関数
+    const getWeekdayColor = (date: Date) => {
+        const dayOfWeek = date.getDay(); // 0:日曜日, 6:土曜日
+        const holidayName = isHoliday(date);
+
+        if (dayOfWeek === 0 || holidayName) {
+            return "text-red-500"; // 日曜日と祝日は赤色
+        } else if (dayOfWeek === 6) {
+            return "text-blue-500"; // 土曜日は青色
+        } else {
+            return ""; // 平日はグレー色
+        }
+    };
+
+
+    const getHolidayName = (date: Date) => {
+        return isHoliday(date);
     };
 
     // 時間をフォーマットする関数
@@ -35,7 +63,14 @@ export default function EventDetails({ selectedDate, selectedSchedule, selectedT
         <div>
             {/* 日付ヘッダー */}
             <h2 className="text-lg font-bold">
-                {formatDate(selectedDate)}
+                {formatDateWithoutWeekday(selectedDate)}
+                (<span className={`${getWeekdayColor(selectedDate)}`}>{formatWeekday(selectedDate)}</span>)
+                {/* 祝日の場合は祝日名を表示 */}
+                {getHolidayName(selectedDate) && (
+                    <span className="ml-2 text-sm font-normal text-red-500">
+                        {getHolidayName(selectedDate)}
+                    </span>
+                )}
             </h2>
 
             {selectedSchedule.length === 0 && selectedTask.length === 0 && (
@@ -49,33 +84,31 @@ export default function EventDetails({ selectedDate, selectedSchedule, selectedT
             {selectedSchedule.length > 0 && (
                 <div>
                     {selectedSchedule.map((schedule) => (
-                        <div key={schedule.id} className="border-l-4 border-blue-500 pl-2 bg-blue-50 rounded-r-lg mb-1 flex justify-between items-center">
-                            <div>
-                                <span className="text-sm text-gray-600 mr-2">
+                        <div key={schedule.id} className="pl-2 bg-blue-50 rounded-r-lg mb-1 flex items-center">
+                            <button className="text-sm text-gray-600 mr-2 my-1 bg-gray-50 border border-gray-600 rounded-sm px-1 hover:bg-gray-300 flex-shrink-0" onClick={() => {
+                                if (schedule.repeat !== "none") {
+                                    setRepeatEditOpitonModalOpen(true);
+                                    setEditingSchedule(schedule);
+                                } else {
+                                    setIsEditScheduleModalOpen(true);
+                                    setEditingSchedule(schedule);
+                                }
+                            }}><FaEdit /></button>
+                            <div className="flex items-center border-l-4 border-blue-500 pl-2 truncate">
+                                <span className="text-sm text-gray-600 mr-2 flex-shrink-0">
                                     {formatTime(schedule.startTime)} - {formatTime(schedule.endTime)}
                                 </span>
                                 <span className="font-medium text-gray-800 mr-2">{schedule.name}</span>
                                 {schedule.location && (
-                                    <span className="text-sm text-gray-500 mr-2">
-                                        📍{schedule.location}
+                                    <span className="text-sm text-gray-500 mr-2 flex items-center">
+                                        <FaMapMarkerAlt />{schedule.location}
                                     </span>
                                 )}
                                 {schedule.memo && (
-                                    <span className="text-sm text-gray-600 mr-2">
-                                        📝 {schedule.memo}
+                                    <span className="text-sm text-gray-600 mr-2 flex items-center">
+                                        <FaStickyNote /> {schedule.memo}
                                     </span>
                                 )}
-                            </div>
-                            <div>
-                                <button className="text-sm text-gray-600 mr-6 my-1 bg-gray-50 border border-gray-600 rounded-sm px-1 hover:bg-gray-300" onClick={() => {
-                                    if (schedule.repeat !== "none") {
-                                        setRepeatEditOpitonModalOpen(true);
-                                        setEditingSchedule(schedule);
-                                    } else {
-                                        setIsEditScheduleModalOpen(true);
-                                        setEditingSchedule(schedule);
-                                    }
-                                }}>編集</button>
                             </div>
                         </div>
                     ))}
@@ -86,26 +119,24 @@ export default function EventDetails({ selectedDate, selectedSchedule, selectedT
             {selectedTask.length > 0 && (
                 <div>
                     {selectedTask.map((task) => (
-                        <div key={task.id} className="border-l-4 border-green-500 pl-2 bg-green-50 rounded-r-lg mb-1 flex justify-between items-center">
-                            <div>
+                        <div key={task.id} className="pl-2 bg-green-50 rounded-r-lg mb-1 flex items-center">
+                            <button className="text-sm text-gray-600 mr-2 my-1 bg-gray-50 border border-gray-600 rounded-sm px-1 hover:bg-gray-300 flex-shrink-0" onClick={() => {
+                                setIsEditTaskModalOpen(true);
+                                setEditingTask(task);
+                            }}><FaEdit /></button>
+                            <div className="flex items-center border-l-4 border-green-500 pl-2 truncate">
                                 <span className="font-medium text-gray-800 mr-2">{task.name}</span>
-                                <span className="text-sm text-gray-600 mr-2">
-                                    📅 期限: {formatDate(task.deadline)}
+                                <span className="text-sm text-gray-600 mr-2 flex items-center">
+                                    <FaCalendarAlt /> 期限: {formatDateWithoutWeekday(task.deadline)}
                                 </span>
-                                <span className="text-sm text-gray-600 mr-2">
-                                    ⏱️ 所要時間: {task.estimatedTime}時間
+                                <span className="text-sm text-gray-600 mr-2 flex items-center">
+                                    <FaClock /> 所要時間: {task.estimatedTime}時間
                                 </span>
                                 {task.memo && (
-                                    <span className="text-sm text-gray-600 mr-2">
-                                        📝 {task.memo}
+                                    <span className="text-sm text-gray-600 mr-2 flex items-center">
+                                        <FaStickyNote /> {task.memo}
                                     </span>
                                 )}
-                            </div>
-                            <div>
-                                <button className="text-sm text-gray-600 mr-6 my-1 bg-gray-50 border border-gray-600 rounded-sm px-1 hover:bg-gray-300" onClick={() => {
-                                    setIsEditTaskModalOpen(true);
-                                    setEditingTask(task);
-                                }}>編集</button>
                             </div>
                         </div>
                     ))}

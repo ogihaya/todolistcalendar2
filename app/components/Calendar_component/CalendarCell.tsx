@@ -39,6 +39,7 @@ export default function CalendarCell({ currentYM, schedules, tasks, selectedDate
     for (let i = 1 - dayOfFirstDate; i <= daysInMonth + 6 - dayOfLastDate; i++) {
       // 処理対象の日付オブジェクトを生成
       const processDate = new Date(currentYM.year, currentYM.month, i);
+      processDate.setHours(0, 0, 0, 0);
       // 曜日を取得（0:日曜日 ～ 6:土曜日）
       const processDay = processDate.getDay();
 

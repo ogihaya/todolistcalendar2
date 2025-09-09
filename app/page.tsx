@@ -21,7 +21,6 @@ export default function Home() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  const todayDate = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   // Firebaseから全てのデータを取得
   const { schedules, tasks, tempTasks, settings, loading, error } = useEvents();
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
@@ -29,7 +28,7 @@ export default function Home() {
   const [isEditTaskModalOpen, setIsEditTaskModalOpen] = useState(false);
   const [isSettingSideModalOpen, setIsSettingSideModalOpen] = useState(false);
 
-  const [selectedDate, setSelectedDate] = useState<Date>(todayDate);
+  const [selectedDate, setSelectedDate] = useState<Date>(today);
   const [selectedSchedule, setSelectedSchedule] = useState<Schedule[]>([]); // 空配列で初期化
   const [selectedTask, setSelectedTask] = useState<Task[]>([]); // 空配列で初期化
   // 編集モーダルの状態を管理

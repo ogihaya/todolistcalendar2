@@ -65,10 +65,12 @@ export default function EditTaskModal({ setIsEditTaskModalOpen, editingTask }: E
                 throw new Error('ユーザーがログインしていません');
             }
 
+            const deadline = new Date(formData.deadline);
+            deadline.setHours(0, 0, 0, 0);
             // 更新するデータを作成
             const updatedData = {
                 name: formData.name,
-                deadline: new Date(formData.deadline),
+                deadline: deadline,
                 estimatedTime: estimatedTime,
                 memo: formData.memo
             };

@@ -11,12 +11,10 @@ interface AddTaskModalProps {
 
 export default function AddTaskModal({ onClose, selectedDate }: AddTaskModalProps) {
     const getInitialDateTime = () => {
-        const date = new Date(selectedDate);
-        date.setHours(0, 0, 0, 0);
         // ローカルタイムゾーンを考慮したISO文字列形式で返す
-        const year = date.getFullYear();
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
+        const year = selectedDate.getFullYear();
+        const month = String(selectedDate.getMonth() + 1).padStart(2, '0');
+        const day = String(selectedDate.getDate()).padStart(2, '0');
 
         return `${year}-${month}-${day}`;
     };
@@ -65,11 +63,13 @@ export default function AddTaskModal({ onClose, selectedDate }: AddTaskModalProp
             if (!userId) {
                 throw new Error('ユーザーがログインしていません');
             }
+            const deadline = new Date(formData.deadline);
+            deadline.setHours(0, 0, 0, 0);
             // Firestoreに保存するデータを作成
             const taskData: Omit<Task, 'id'> = {
                 type: 'task',
                 name: formData.name,
-                deadline: new Date(formData.deadline),
+                deadline: deadline,
                 estimatedTime: estimatedTime,
                 memo: formData.memo
             };

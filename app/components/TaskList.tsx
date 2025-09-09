@@ -213,7 +213,7 @@ export default function TaskList({
     return (
         <div>
             {/* テーブル */}
-            <div className="max-h-60 overflow-y-auto border border-gray-800 px-2">
+            <div className="h-60 overflow-y-auto border border-gray-800 px-2">
                 <table className="border border-gray-800 w-full">
                     {/* テーブルヘッダー */}
                     <thead className="bg-gray-200 sticky top-0">

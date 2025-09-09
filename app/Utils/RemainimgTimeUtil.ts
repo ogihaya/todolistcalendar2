@@ -27,15 +27,12 @@ export const makeDailyScheduleTime = (
         ? latestDeadlineTask.deadline
         : dateTakeIntoAccount;
 
-    finalDate.setHours(0, 0, 0, 0);
-
     // 3. 今日から最終日まで各日付のスケジュール合計時間を計算
     const dailyScheduleTime: Map<string, number> = new Map();
 
     // 日付を1日ずつ進めながら処理
     for (let currentDate = new Date(today); currentDate <= finalDate; currentDate.setDate(currentDate.getDate() + 1)) {
         const dateKey = new Date(currentDate); // ✅ 新しいDateオブジェクトを作成
-        dateKey.setHours(0, 0, 0, 0);
         let totalScheduleTime = 0;
 
         const schedulesForDate = getSchedulesForDate(schedules, currentDate);
@@ -46,7 +43,6 @@ export const makeDailyScheduleTime = (
 
             // datekeyの日付を取得（時刻は0:00:00に設定済み）
             const dateKeyDate = new Date(dateKey);
-            dateKeyDate.setHours(0, 0, 0, 0);
 
             if (schedule.repeat === 'none') {
                 // 繰り返しなしの場合：日付が異なる場合に調整
@@ -154,7 +150,7 @@ export const makeDailyScheduleTime = (
  * タスクの猶予時間を計算する関数
  * 
  * @param today 今日の日付
- * @param schedules 予定の配列
+ * @param dailyScheduleTime 日別スケジュール時間
  * @param task 計算対象のタスク
  * @param tasks 全てのタスクの配列
  * @param availableTimePerDay 1日の利用可能時間（時間単位）
@@ -162,71 +158,6 @@ export const makeDailyScheduleTime = (
  * @param availableTimePerUnscheduledDay 予定なし日の利用可能時間（時間単位）
  * @returns 猶予時間（時間単位）
  */
-// export const calculateRemainingTime = (
-//     today: Date,
-//     schedules: Schedule[],
-//     task: Task,
-//     tasks: Task[],
-//     availableTimePerDay: number,
-//     dateTakeIntoAccount: Date,
-//     availableTimePerUnscheduledDay: number
-// ): number => {
-//     // 1. 引数のタスクの締切日を取得
-//     const deadline = new Date(task.deadline);
-//     deadline.setHours(0, 0, 0, 0);
-
-//     // 2. 今日から締切日までの日数と、その間の各日の予定で使われる時間の合計を計算
-//     const dailyScheduleTime = makeDailyScheduleTime(today, schedules, tasks, availableTimePerDay, dateTakeIntoAccount);
-
-//     // 今日から締切日までの日数を計算
-//     const daysUntilDeadline = Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-
-//     // 3. 総利用可能時間（予定を考慮する前）「日数 × 一日あたり使える時間」を計算
-//     let totalAvailableTime = daysUntilDeadline * availableTimePerDay;
-
-//     const dateTakeIntoAccountStart = new Date(dateTakeIntoAccount);
-//     dateTakeIntoAccountStart.setHours(0, 0, 0, 0);
-//     // 今日からdateTakeIntoAccountまでの日数を計算
-//     const daysUntilDateTakeIntoAccount = Math.ceil((dateTakeIntoAccountStart.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))+1;
-
-//     // 締切日とdateTakeIntoAccountの早い方までの日数を計算
-//     const daysToCalculate = Math.min(daysUntilDeadline, daysUntilDateTakeIntoAccount);
-
-//     // 4. 予定で使われる時間を差し引く
-//     let totalScheduleTime = 0;
-//     for (let i = 0; i < daysToCalculate; i++) {
-//         const currentDate = new Date(today);
-//         currentDate.setDate(today.getDate() + i);
-
-//         const scheduleTimeForDay = dailyScheduleTime.get(currentDate.toDateString()) || 0;
-//         totalScheduleTime += scheduleTimeForDay;
-//     }
-//     // 予定で使われる時間を差し引く
-//     totalAvailableTime -= totalScheduleTime;
-
-//     // 5. 該当タスクを含む、締切日以前（または同日）のタスクの所要時間も差し引く
-//     const tasksBeforeDeadline = tasks.filter(t => {
-//         const taskDeadline = new Date(t.deadline);
-//         taskDeadline.setHours(0, 0, 0, 0);
-//         return taskDeadline <= deadline;
-//     });
-
-//     const totalTaskTime = tasksBeforeDeadline.reduce((sum, t) => sum + t.estimatedTime, 0);
-//     totalAvailableTime -= totalTaskTime;
-
-//     // 6. 予定未確定の日程の減算
-//     const deadlineDate = new Date(deadline);
-//     deadlineDate.setHours(0, 0, 0, 0);
-//     const noAccountDaysLeft = Math.ceil((deadlineDate.getTime() - dateTakeIntoAccountStart.getTime()) / (1000 * 60 * 60 * 24) - 1); // 考慮してる日から締切までの日数
-//     if (noAccountDaysLeft > 0) {
-//         totalAvailableTime -= noAccountDaysLeft * (availableTimePerDay - availableTimePerUnscheduledDay);
-//     }
-
-//     // 結果を返す（負の値の場合は0を返す）
-//     return totalAvailableTime;
-// };
-
-
 // 最適化された猶予時間計算関数
 export const calculateRemainingTime = (
     today: Date,
@@ -237,20 +168,19 @@ export const calculateRemainingTime = (
     dateTakeIntoAccount: Date,
     availableTimePerUnscheduledDay: number
 ): number => {
+    console.log("task", task);
     // 1. 引数のタスクの締切日を取得
     const deadline = new Date(task.deadline);
-    deadline.setHours(0, 0, 0, 0);
 
     // 今日から締切日までの日数を計算
-    const daysUntilDeadline = Math.ceil((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+    const daysUntilDeadline = Math.round((deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
 
     // 2. 総利用可能時間（予定を考慮する前）「日数 × 一日あたり使える時間」を計算
     let totalAvailableTime = daysUntilDeadline * availableTimePerDay;
 
     const dateTakeIntoAccountStart = new Date(dateTakeIntoAccount);
-    dateTakeIntoAccountStart.setHours(0, 0, 0, 0);
     // 今日からdateTakeIntoAccountまでの日数を計算
-    const daysUntilDateTakeIntoAccount = Math.ceil((dateTakeIntoAccountStart.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))+1;
+    const daysUntilDateTakeIntoAccount = Math.round((dateTakeIntoAccountStart.getTime() - today.getTime()) / (1000 * 60 * 60 * 24))+1;
 
     // 締切日とdateTakeIntoAccountの早い方までの日数を計算
     const daysToCalculate = Math.min(daysUntilDeadline, daysUntilDateTakeIntoAccount);
@@ -270,7 +200,6 @@ export const calculateRemainingTime = (
     // 4. 該当タスクを含む、締切日以前（または同日）のタスクの所要時間も差し引く
     const tasksBeforeDeadline = tasks.filter(t => {
         const taskDeadline = new Date(t.deadline);
-        taskDeadline.setHours(0, 0, 0, 0);
         return taskDeadline <= deadline;
     });
 
@@ -279,8 +208,8 @@ export const calculateRemainingTime = (
 
     // 5. 予定未確定の日程の減算
     const deadlineDate = new Date(deadline);
-    deadlineDate.setHours(0, 0, 0, 0);
-    const noAccountDaysLeft = Math.ceil((deadlineDate.getTime() - dateTakeIntoAccountStart.getTime()) / (1000 * 60 * 60 * 24) - 1);
+    const noAccountDaysLeft = Math.round((deadlineDate.getTime() - dateTakeIntoAccountStart.getTime()) / (1000 * 60 * 60 * 24))-1;
+    console.log("noAccountDaysLeft", noAccountDaysLeft);
     if (noAccountDaysLeft > 0) {
         totalAvailableTime -= noAccountDaysLeft * (availableTimePerDay - availableTimePerUnscheduledDay);
     }
