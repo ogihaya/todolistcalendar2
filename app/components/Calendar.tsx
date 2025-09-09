@@ -48,7 +48,7 @@ export default function Calendar({ selectedDate, setSelectedDate, today, schedul
 
   return (
     <>
-      <CalendarHeader currentYM={currentYM} setCurrentYM={setCurrentYM} />
+      <CalendarHeader currentYM={currentYM} setCurrentYM={setCurrentYM} today={today} setSelectedDate={setSelectedDate} />
       <DaysHeader />
       <CalendarCell
         currentYM={currentYM}
