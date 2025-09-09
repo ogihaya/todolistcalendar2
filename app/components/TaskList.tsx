@@ -65,6 +65,34 @@ export default function TaskList({
         });
     }, [today, schedules, tasks, availableTimePerDay, dateTakeIntoAccount, availableTimePerUnscheduledDay]);
 
+    // 最も猶予時間が少ないタスクを特定する関数
+    const getTaskWithLeastRemainingTime = useMemo(() => {
+        if (tasksWithRemainingTime.length === 0) return null;
+
+        // 猶予時間が最も少ないタスクを取得
+        return tasksWithRemainingTime.reduce((minTask, currentTask) => {
+            return currentTask.remainingTime < minTask.remainingTime ? currentTask : minTask;
+        });
+    }, [tasksWithRemainingTime]);
+
+    // 行の背景色を決定する関数
+    const getRowBackgroundColor = (task: TaskWithRemainingTime) => {
+        // タスクがない場合は通常の背景色
+        if (!getTaskWithLeastRemainingTime) return "";
+
+        // 最も猶予時間が少ないタスクの場合
+        if (task.id === getTaskWithLeastRemainingTime.id) {
+            return "bg-red-100"; // 薄い赤の背景
+        }
+
+        // 最も猶予時間が少ないタスクの締め切り日より早いタスクの場合
+        if (task.deadline < getTaskWithLeastRemainingTime.deadline) {
+            return "bg-red-100"; // 薄い赤の背景
+        }
+
+        return ""; // 通常の背景色
+    };
+
     // 日付をフォーマットする関数
     const formatDate = (date: Date) => {
         return date.toLocaleDateString('ja-JP', {
@@ -94,20 +122,20 @@ export default function TaskList({
                         className="flex items-center"
                     >
                         タスク名
-                        {column.getIsSorted() === 'asc' && <FaSortUp/>}
-                        {column.getIsSorted() === 'desc' && <FaSortDown/>}
-                        {!column.getIsSorted() && <FaSort/>}
+                        {column.getIsSorted() === 'asc' && <FaSortUp />}
+                        {column.getIsSorted() === 'desc' && <FaSortDown />}
+                        {!column.getIsSorted() && <FaSort />}
                     </button>
                 ),
                 cell: ({ row }) => (
                     <div>
                         <div className="m-2">
-                        <div>{row.original.name}</div>
-                        {row.original.memo && (
-                            <div className="text-xs text-gray-500">
-                                {row.original.memo}
-                            </div>
-                        )}
+                            <div>{row.original.name}</div>
+                            {row.original.memo && (
+                                <div className="text-xs text-gray-500">
+                                    {row.original.memo}
+                                </div>
+                            )}
                         </div>
                     </div>
                 ),
@@ -122,9 +150,9 @@ export default function TaskList({
                         className="flex items-center"
                     >
                         締め切り日
-                        {column.getIsSorted() === 'asc' && <FaSortUp/>}
-                        {column.getIsSorted() === 'desc' && <FaSortDown/>}
-                        {!column.getIsSorted() && <FaSort/>}
+                        {column.getIsSorted() === 'asc' && <FaSortUp />}
+                        {column.getIsSorted() === 'desc' && <FaSortDown />}
+                        {!column.getIsSorted() && <FaSort />}
                     </button>
                 ),
                 cell: ({ getValue }) => (
@@ -143,9 +171,9 @@ export default function TaskList({
                         className="flex items-center"
                     >
                         所要時間
-                        {column.getIsSorted() === 'asc' && <FaSortUp/>}
-                        {column.getIsSorted() === 'desc' && <FaSortDown/>}
-                        {!column.getIsSorted() && <FaSort/>}
+                        {column.getIsSorted() === 'asc' && <FaSortUp />}
+                        {column.getIsSorted() === 'desc' && <FaSortDown />}
+                        {!column.getIsSorted() && <FaSort />}
                     </button>
                 ),
                 cell: ({ getValue }) => (
@@ -164,9 +192,9 @@ export default function TaskList({
                         className="flex items-center"
                     >
                         猶予時間
-                        {column.getIsSorted() === 'asc' && <FaSortUp/>}
-                        {column.getIsSorted() === 'desc' && <FaSortDown/>}
-                        {!column.getIsSorted() && <FaSort/>}
+                        {column.getIsSorted() === 'asc' && <FaSortUp />}
+                        {column.getIsSorted() === 'desc' && <FaSortDown />}
+                        {!column.getIsSorted() && <FaSort />}
                     </button>
                 ),
                 cell: ({ row }) => {
@@ -251,7 +279,7 @@ export default function TaskList({
                         ) : (
                             // タスクがある場合の表示
                             table.getRowModel().rows.map(row => (
-                                <tr key={row.id}>
+                                <tr key={row.id} className={getRowBackgroundColor(row.original)}>
                                     {row.getVisibleCells().map(cell => (
                                         <td key={cell.id} className="border border-gray-400">
                                             {flexRender(

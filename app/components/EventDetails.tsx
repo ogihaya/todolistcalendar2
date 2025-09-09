@@ -59,6 +59,59 @@ export default function EventDetails({ selectedDate, selectedSchedule, selectedT
         });
     };
 
+    const makeTimeDisplay = (schedule: Schedule) => {
+        let start = formatTime(schedule.startTime);
+        let end = formatTime(schedule.endTime);
+
+        if (schedule.repeat === 'none') {
+            // 繰り返しなしの場合：日付が異なる場合に調整
+            const startDate = new Date(schedule.startTime);
+            startDate.setHours(0, 0, 0, 0);
+            const endDate = new Date(schedule.endTime);
+            endDate.setHours(0, 0, 0, 0);
+
+            // startTimeの日付がdatekeyと異なる場合、startをdatekeyの0:00に設定
+            if (startDate.getTime() !== selectedDate.getTime()) {
+                start = "--";
+            }
+
+            // endTimeの日付がdatekeyと異なる場合、endをdatekeyの23:59に設定
+            if (endDate.getTime() !== selectedDate.getTime()) {
+                end = "--";
+            }
+        } else if (schedule.repeat === 'weekly') {
+            // 週次繰り返しの場合：曜日が異なる場合に調整
+            const startDayOfWeek = schedule.startTime.getDay(); // 0-6 (日曜日-土曜日)
+            const endDayOfWeek = schedule.endTime.getDay();
+            const selectedDateDayOfWeek = selectedDate.getDay();
+
+            // startTimeの曜日がdatekeyと異なる場合、startをdatekeyの0:00に設定
+            if (startDayOfWeek !== selectedDateDayOfWeek) {
+                start = "--";
+            }
+
+            // endTimeの曜日がdatekeyと異なる場合、endをdatekeyの23:59に設定
+            if (endDayOfWeek !== selectedDateDayOfWeek) {
+                end = "--";
+            }
+        } else if (schedule.repeat === 'monthly' || schedule.repeat === 'yearly') {
+            // 月次・年次繰り返しの場合：日が異なる場合に調整
+            const startDay = schedule.startTime.getDate(); // 1-31
+            const endDay = schedule.endTime.getDate();
+            const selectedDateDay = selectedDate.getDate();
+
+            // startTimeの日がdatekeyと異なる場合、startをdatekeyの0:00に設定
+            if (startDay !== selectedDateDay) {
+                start = "--";
+            }
+            // endTimeの日がdatekeyと異なる場合、endをdatekeyの23:59に設定
+            if (endDay !== selectedDateDay) {
+                end = "--";
+            }
+        }
+        return `${start} - ${end}`;
+    }
+
     return (
         <div>
             {/* 日付ヘッダー */}
@@ -96,7 +149,7 @@ export default function EventDetails({ selectedDate, selectedSchedule, selectedT
                             }}><FaEdit /></button>
                             <div className="flex items-center border-l-4 border-blue-500 pl-2 truncate">
                                 <span className="text-sm text-gray-600 mr-2 flex-shrink-0">
-                                    {formatTime(schedule.startTime)} - {formatTime(schedule.endTime)}
+                                    {makeTimeDisplay(schedule)}
                                 </span>
                                 <span className="font-medium text-gray-800 mr-2">{schedule.name}</span>
                                 {schedule.location && (
