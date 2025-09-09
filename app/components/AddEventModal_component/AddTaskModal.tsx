@@ -114,7 +114,6 @@ export default function AddTaskModal({ onClose, selectedDate }: AddTaskModalProp
                     onChange={handleInputChange}
                     required
                     className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
-                    style={{ width: '100%'}}
                 />
             </div>
 
