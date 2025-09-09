@@ -10,9 +10,10 @@ interface CalendarCellProps {
   tasks: Task[];         // 追加：タスクデータを受け取る
   selectedDate: Date;
   setSelectedDate: (date: Date) => void;
+  today: Date;
 }
 
-export default function CalendarCell({ currentYM, schedules, tasks, selectedDate, setSelectedDate }: CalendarCellProps) {
+export default function CalendarCell({ currentYM, schedules, tasks, selectedDate, setSelectedDate, today }: CalendarCellProps) {
 
   // カレンダー生成に必要な日付情報を計算（useMemoでメモ化）
   const calendarInfo = useMemo(() => {
@@ -63,9 +64,11 @@ export default function CalendarCell({ currentYM, schedules, tasks, selectedDate
                         selectedDate.getMonth() === processDate.getMonth() && 
                         selectedDate.getDate() === processDate.getDate();
 
+      const isToday = processDate.getFullYear() === today.getFullYear() && processDate.getMonth() === today.getMonth() && processDate.getDate() === today.getDate();
+
       // 日付セルを生成してリストに追加
       cellList.push(
-        <div key={i} className={`border border-gray-300 ${isSelected ? "border-red-500 border-2" : ""}`} onClick={() => {
+        <div key={i} className={`border border-gray-300 ${isSelected ? "border-red-500 border-2" : ""} ${isToday ? "bg-red-100" : ""}`} onClick={() => {
           setSelectedDate(processDate);
         }}>
           <div className={textClass}>

@@ -56,6 +56,7 @@ export default function Calendar({ selectedDate, setSelectedDate, today, schedul
         tasks={tasks}
         selectedDate={selectedDate}
         setSelectedDate={setSelectedDate}
+        today={today}
       />
     </>
   );
