@@ -66,11 +66,11 @@ export default function Home() {
       <div className="flex justify-end">
         <button onClick={openEventModal} className="text-lg font-bold border border-gray-600 rounded-sm px-6 hover:bg-gray-200 mr-4">＋イベント追加</button>
       </div>
-      <div className="my-1 mx-2 flex">
-        <div className="w-7/10 pr-2">
+      <div className="my-1 mx-2 flex flex-col lg:flex-row">
+        <div className="w-full lg:w-7/10 lg:pr-2 mb-4 lg:mb-0">
           <TaskList today={today} schedules={schedules} tasks={tasks} availableTimePerDay={settings?.availableTimePerDay} dateTakeIntoAccount={settings?.dateTakeIntoAccount} availableTimePerUnscheduledDay={settings?.availableTimePerUnscheduledDay} onEditTask={(task) => { setEditingTask(task); setIsEditTaskModalOpen(true); }} />
         </div>
-        <div className="w-3/10">
+        <div className="w-full lg:w-3/10">
           <TempTaskList tempTasks={tempTasks} selectedDate={selectedDate} />
         </div>
       </div>
