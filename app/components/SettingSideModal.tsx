@@ -67,6 +67,7 @@ export default function SettingSideModal({ setIsSettingSideModalOpen, settings }
             // 現在のユーザーIDを取得
             const userId = auth.currentUser?.uid;
             if (!userId) {
+                alert("ユーザーがログインしていません。右上の設定ボタンからログインしてください。");
                 throw new Error('ユーザーがログインしていません');
             }
             const dateTakeIntoAccount = new Date(formData.dateTakeIntoAccount);
