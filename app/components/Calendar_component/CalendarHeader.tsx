@@ -36,7 +36,7 @@ export default function CalendarHeader({ currentYM, setCurrentYM, today, setSele
     <>
       <div className="flex justify-between">
         <button onClick={navigateToPreviousMonth} className="text-lg border border-gray-600 rounded-sm px-4 hover:bg-gray-200 mb-1 ml-1">＜</button>
-        <div className="text-xl font-bold flex items-center">{currentYM.year}年{currentYM.month + 1}月<button onClick={navigateToToday} className="ml-2 text-sm flex items-center"><FaUndo />今日</button></div>
+        <div className="text-xl font-bold flex items-center">{currentYM.year}年{currentYM.month + 1}月<button onClick={navigateToToday} className="ml-2 text-sm flex items-center hover:bg-gray-200"><FaUndo />今日</button></div>
         <button onClick={navigateToNextMonth} className="text-lg border border-gray-600 rounded-sm px-4 hover:bg-gray-200 mb-1 mr-1">＞</button>
       </div>
     </>

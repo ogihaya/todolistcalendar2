@@ -61,6 +61,7 @@ export default function AddTaskModal({ onClose, selectedDate }: AddTaskModalProp
             // 現在のユーザーIDを取得
             const userId = auth.currentUser?.uid;
             if (!userId) {
+                alert("ユーザーがログインしていません。右上の設定ボタンからログインしてください。");
                 throw new Error('ユーザーがログインしていません');
             }
             const deadline = new Date(formData.deadline);

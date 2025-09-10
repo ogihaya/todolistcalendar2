@@ -31,6 +31,7 @@ export default function TempTaskList({ tempTasks, selectedDate }: TempTaskListPr
             // 現在のユーザーIDを取得
             const userId = auth.currentUser?.uid;
             if (!userId) {
+                alert("ユーザーがログインしていません。右上の設定ボタンからログインしてください。");
                 throw new Error('ユーザーがログインしていません');
             }
             // Firestoreに保存するデータを作成
