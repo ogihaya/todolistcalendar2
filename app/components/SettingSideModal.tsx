@@ -93,12 +93,12 @@ export default function SettingSideModal({ setIsSettingSideModalOpen, settings }
     return (
         // モーダルの背景を含む最外層のラッパー
         <div
-            className="fixed inset-0 flex items-start justify-end bg-black/30 z-50"
+            className="fixed inset-0 flex items-start justify-end bg-black/50 z-50"
             onClick={() => setIsSettingSideModalOpen(false)} // 背景クリックでモーダルを閉じる
         >
             {/* サイドモーダル本体 */}
             <div
-                className="relative bg-white border-l border-gray-200 w-full max-w-sm"
+                className="relative bg-white border-l border-slate-200 w-full max-w-md h-full overflow-y-auto"
                 onClick={(e) => e.stopPropagation()} // モーダル本体のクリックイベントが背景に伝播するのを防ぐ
             >
                 {/* 右上の閉じるボタン */}
@@ -108,31 +108,91 @@ export default function SettingSideModal({ setIsSettingSideModalOpen, settings }
                         <MdSettings className="text-gray-700 text-xl" />
                     </button>
                 </div>
-                <div className="p-4">
-                    <LoginButton />
-                    <h1 className="text-lg font-bold border-t border-gray-200 pt-4 mt-4">詳細設定</h1>
-                    <form onSubmit={handleSubmit}>
-                        <div>
-                            <label className="block text-sm text-gray-600 mt-2">
-                                一日あたり使える時間
-                            </label>
-                            <input type="number" className="border border-gray-300" value={formData.availableTimePerDay} onChange={(e) => setFormData({ ...formData, availableTimePerDay: e.target.value })} />
-                            <span className="text-sm text-gray-500">時間</span>
-                        </div>
-                        <div>
-                            <label className="block text-sm text-gray-600 mt-2">
-                                予定確定日
-                            </label>
-                            <input type="date" className="border border-gray-300" value={formData.dateTakeIntoAccount} onChange={(e) => setFormData({ ...formData, dateTakeIntoAccount: e.target.value })} />
-                        </div>
-                        <div>
-                            <label className="block text-sm text-gray-600 mt-2">
-                                予定未確定日の一日当たり使える時間
-                            </label>
-                            <input type="number" step="0.1" className="border border-gray-300" value={formData.availableTimePerUnscheduledDay} onChange={(e) => setFormData({ ...formData, availableTimePerUnscheduledDay: e.target.value })} />
-                        </div>
-                        <button type="submit" className="px-4 py-1 mt-2 border border-gray-300 text-black hover:bg-gray-50 disabled:opacity-50">{isSubmitting ? "更新中..." : "更新"}</button>
-                    </form>
+
+                <div className="px-6 space-y-2">
+                    {/* ログインセクション */}
+                    <div>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-4">アカウント</h3>
+                        <LoginButton />
+                    </div>
+
+                    {/* 詳細設定セクション */}
+                    <div>
+                        <h3 className="text-lg font-semibold text-slate-900 mb-4">詳細設定</h3>
+                        <form onSubmit={handleSubmit} className="space-y-2">
+                            {/* 一日あたり使える時間 */}
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    一日あたり使える時間 <span className="text-red-500">*</span>
+                                </label>
+                                <div className="flex items-center gap-2">
+                                    <input 
+                                        type="number" 
+                                        min="0.1"
+                                        step="0.1"
+                                        value={formData.availableTimePerDay} 
+                                        onChange={(e) => setFormData({ ...formData, availableTimePerDay: e.target.value })}
+                                        className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors duration-200"
+                                        placeholder="例: 8"
+                                    />
+                                    <span className="text-sm text-slate-500 font-medium">時間</span>
+                                </div>
+                            </div>
+
+                            {/* 予定確定日 */}
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    予定確定日 <span className="text-red-500">*</span>
+                                </label>
+                                <input 
+                                    type="date" 
+                                    value={formData.dateTakeIntoAccount} 
+                                    onChange={(e) => setFormData({ ...formData, dateTakeIntoAccount: e.target.value })}
+                                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors duration-200"
+                                />
+                            </div>
+
+                            {/* 予定未確定日の一日あたり使える時間 */}
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-2">
+                                    予定未確定日の一日あたり使える時間 <span className="text-red-500">*</span>
+                                </label>
+                                <div className="flex items-center gap-2">
+                                    <input 
+                                        type="number" 
+                                        step="0.1"
+                                        min="0.1"
+                                        value={formData.availableTimePerUnscheduledDay} 
+                                        onChange={(e) => setFormData({ ...formData, availableTimePerUnscheduledDay: e.target.value })}
+                                        className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-slate-500 focus:border-slate-500 transition-colors duration-200"
+                                        placeholder="例: 4"
+                                    />
+                                    <span className="text-sm text-slate-500 font-medium">時間</span>
+                                </div>
+                            </div>
+
+                            {/* 保存ボタン */}
+                            <div className="pt-4">
+                                <button 
+                                    type="submit" 
+                                    disabled={isSubmitting}
+                                    className="w-full px-4 py-2 text-sm font-medium text-white bg-slate-600 rounded-lg hover:bg-slate-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
+                                >
+                                    {isSubmitting ? (
+                                        <span className="flex items-center justify-center">
+                                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                            </svg>
+                                            更新中...
+                                        </span>
+                                    ) : (
+                                        "設定を保存"
+                                    )}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
             </div>
         </div>

@@ -128,15 +128,13 @@ export default function TaskList({
                     </button>
                 ),
                 cell: ({ row }) => (
-                    <div>
-                        <div className="m-2">
-                            <div>{row.original.name}</div>
-                            {row.original.memo && (
-                                <div className="text-xs text-gray-500">
-                                    {row.original.memo}
-                                </div>
-                            )}
-                        </div>
+                    <div className="py-2">
+                        <div className="font-medium text-slate-900">{row.original.name}</div>
+                        {row.original.memo && (
+                            <div className="text-xs text-slate-500 mt-1">
+                                {row.original.memo}
+                            </div>
+                        )}
                     </div>
                 ),
             }),
@@ -156,8 +154,10 @@ export default function TaskList({
                     </button>
                 ),
                 cell: ({ getValue }) => (
-                    <div className="m-2 text-center">
-                        {formatDate(getValue())}
+                    <div className="py-2 text-center">
+                        <span className="inline-flex items-center px-2 py-1 rounded-md bg-slate-100 text-slate-700 text-xs font-medium">
+                            {formatDate(getValue())}
+                        </span>
                     </div>
                 ),
             }),
@@ -177,8 +177,10 @@ export default function TaskList({
                     </button>
                 ),
                 cell: ({ getValue }) => (
-                    <div className="m-2 text-center">
-                        {formatTime(getValue())}
+                    <div className="py-2 text-center">
+                        <span className="inline-flex items-center px-2 py-1 rounded-md bg-blue-100 text-blue-700 text-xs font-medium">
+                            {formatTime(getValue())}
+                        </span>
                     </div>
                 ),
             }),
@@ -199,9 +201,22 @@ export default function TaskList({
                 ),
                 cell: ({ row }) => {
                     const remainingTime = row.original.remainingTime;
+                    const isUrgent = remainingTime < 0;
+                    const isWarning = remainingTime >= 0 && remainingTime < 24; // 24時間未満
+                    
                     return (
-                        <div className="m-2 text-center">
-                            {formatTime(remainingTime)}
+                        <div className="py-2 text-center">
+                            <span className={`
+                                inline-flex items-center px-2 py-1 rounded-md text-xs font-medium
+                                ${isUrgent 
+                                    ? "bg-red-100 text-red-700" 
+                                    : isWarning 
+                                    ? "bg-yellow-100 text-yellow-700" 
+                                    : "bg-green-100 text-green-700"
+                                }
+                            `}>
+                                {formatTime(remainingTime)}
+                            </span>
                         </div>
                     );
                 },
@@ -212,10 +227,10 @@ export default function TaskList({
                 id: 'actions',
                 header: '操作',
                 cell: ({ row }) => (
-                    <div className="m-2 text-center">
+                    <div className="py-2 text-center">
                         <button
                             onClick={() => onEditTask(row.original)}
-                            className="border border-gray-600 px-1 hover:bg-gray-300"
+                            className="inline-flex items-center px-3 py-1 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                         >
                             編集
                         </button>
@@ -239,18 +254,18 @@ export default function TaskList({
     });
 
     return (
-        <div>
+        <div className="bg-white rounded-lg border border-slate-200 overflow-hidden">
             {/* テーブル */}
-            <div className="h-60 overflow-y-auto border border-gray-800 px-2">
-                <table className="border border-gray-800 w-full">
+            <div className="h-60 overflow-y-auto">
+                <table className="w-full">
                     {/* テーブルヘッダー */}
-                    <thead className="bg-gray-200 sticky top-0">
+                    <thead className="bg-slate-50 sticky top-0 border-b border-slate-200">
                         {table.getHeaderGroups().map(headerGroup => (
                             <tr key={headerGroup.id}>
                                 {headerGroup.headers.map(header => (
                                     <th
                                         key={header.id}
-                                        className="px-4 py-2 border border-gray-800"
+                                        className="px-4 py-3 text-left text-xs font-semibold text-slate-600 uppercase tracking-wider"
                                     >
                                         {header.isPlaceholder
                                             ? null
@@ -265,23 +280,30 @@ export default function TaskList({
                     </thead>
 
                     {/* テーブルボディ */}
-                    <tbody>
+                    <tbody className="bg-white divide-y divide-slate-200">
                         {table.getRowModel().rows.length === 0 ? (
                             // タスクがない場合の表示
                             <tr>
                                 <td
                                     colSpan={columns.length}
-                                    className="px-4 py-2 border border-gray-800"
+                                    className="px-4 py-12 text-center text-slate-500"
                                 >
-                                    タスクがありません
+                                    <div className="text-4xl mb-2">📝</div>
+                                    <p className="text-lg font-medium">タスクがありません</p>
+                                    <p className="text-sm">新しいタスクを追加してみましょう！</p>
                                 </td>
                             </tr>
                         ) : (
                             // タスクがある場合の表示
                             table.getRowModel().rows.map(row => (
-                                <tr key={row.id} className={getRowBackgroundColor(row.original)}>
+                                <tr 
+                                    key={row.id} 
+                                    className={`
+                                        ${getRowBackgroundColor(row.original)}
+                                    `}
+                                >
                                     {row.getVisibleCells().map(cell => (
-                                        <td key={cell.id} className="border border-gray-400">
+                                        <td key={cell.id} className="px-4 py-3 text-sm text-slate-900">
                                             {flexRender(
                                                 cell.column.columnDef.cell,
                                                 cell.getContext()

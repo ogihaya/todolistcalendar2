@@ -33,12 +33,42 @@ export default function CalendarHeader({ currentYM, setCurrentYM, today, setSele
     setSelectedDate(today);
   }
   return (
-    <>
-      <div className="flex justify-between">
-        <button onClick={navigateToPreviousMonth} className="text-lg border border-gray-600 rounded-sm px-4 hover:bg-gray-200 mb-1 ml-1">＜</button>
-        <div className="text-xl font-bold flex items-center">{currentYM.year}年{currentYM.month + 1}月<button onClick={navigateToToday} className="ml-2 text-sm flex items-center hover:bg-gray-200"><FaUndo />今日</button></div>
-        <button onClick={navigateToNextMonth} className="text-lg border border-gray-600 rounded-sm px-4 hover:bg-gray-200 mb-1 mr-1">＞</button>
+    <div className="flex items-center justify-between mb-6">
+      {/* 前月ボタン */}
+      <button 
+        onClick={navigateToPreviousMonth} 
+        className="p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        aria-label="前の月"
+      >
+        <svg className="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+        </svg>
+      </button>
+
+      {/* 年月表示と今日ボタン */}
+      <div className="flex items-center gap-4">
+        <h2 className="text-2xl font-bold text-slate-900">
+          {currentYM.year}年{currentYM.month + 1}月
+        </h2>
+        <button 
+          onClick={navigateToToday} 
+          className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        >
+          <FaUndo className="w-4 h-4" />
+          今日
+        </button>
       </div>
-    </>
+
+      {/* 次月ボタン */}
+      <button 
+        onClick={navigateToNextMonth} 
+        className="p-2 rounded-lg hover:bg-slate-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+        aria-label="次の月"
+      >
+        <svg className="w-6 h-6 text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+        </svg>
+      </button>
+    </div>
   );
 }

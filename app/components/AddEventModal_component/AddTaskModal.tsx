@@ -88,79 +88,97 @@ export default function AddTaskModal({ onClose, selectedDate }: AddTaskModalProp
     };
 
     return (
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-6">
+            {/* タスク名 */}
             <div>
-                <label className="block text-sm text-gray-600 mt-1">
-                    タスク名
+                <label className="block text-sm font-medium text-slate-700 mb-2">
+                    タスク名 <span className="text-red-500">*</span>
                 </label>
                 <input
                     type="text"
                     name="name"
                     value={formData.name}
                     onChange={handleInputChange}
-                    placeholder="タスク名を入力してください"
+                    placeholder="例: レポート作成、資料準備、メール返信"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
                 />
             </div>
 
-            <div>
-                <label className="block text-sm text-gray-600 mt-1">
-                    締め切り日
-                </label>
-                <input
-                    type="date"
-                    name="deadline"
-                    value={formData.deadline}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
-                />
+            {/* 締め切り日と所要時間 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                        締め切り日 <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="date"
+                        name="deadline"
+                        value={formData.deadline}
+                        onChange={handleInputChange}
+                        required
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
+                    />
+                </div>
+                <div>
+                    <label className="block text-sm font-medium text-slate-700 mb-2">
+                        所要時間（時間） <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                        type="number"
+                        name="estimatedTime"
+                        value={formData.estimatedTime}
+                        onChange={handleInputChange}
+                        placeholder="例: 2.5"
+                        min="0.1"
+                        step="0.1"
+                        required
+                        className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200"
+                    />
+                </div>
             </div>
 
+            {/* メモ */}
             <div>
-                <label className="block text-sm text-gray-600 mt-1">
-                    所要時間（時間）
-                </label>
-                <input
-                    type="number"
-                    name="estimatedTime"
-                    value={formData.estimatedTime}
-                    onChange={handleInputChange}
-                    required
-                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
-                />
-            </div>
-
-            <div>
-                <label className="block text-sm text-gray-600 mt-1">
+                <label className="block text-sm font-medium text-slate-700 mb-2">
                     メモ
                 </label>
-                <input
-                    type="text"
+                <textarea
                     name="memo"
                     value={formData.memo}
-                    onChange={handleInputChange}
-                    placeholder="メモを入力してください"
-                    className="w-full px-3 py-2 border border-gray-300 text-sm focus:outline-none focus:border-gray-500"
+                    onChange={(e) => setFormData(prev => ({ ...prev, memo: e.target.value }))}
+                    placeholder="詳細や注意事項を入力してください"
+                    rows={3}
+                    className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 transition-colors duration-200 resize-none"
                 />
             </div>
 
-            <div className="flex gap-2 pt-2">
+            {/* ボタン */}
+            <div className="flex gap-3 pt-4">
                 <button
                     type="button"
                     onClick={onClose}
                     disabled={isSubmitting}
-                    className="flex-1 px-4 py-2 text-sm border border-gray-300 text-gray-600 hover:bg-gray-50 disabled:opacity-50"
+                    className="flex-1 px-4 py-2 text-sm font-medium text-slate-700 bg-slate-100 border border-slate-300 rounded-lg hover:bg-slate-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-slate-500 focus:ring-offset-2"
                 >
                     キャンセル
                 </button>
                 <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="flex-1 px-4 py-2 text-sm bg-gray-800 text-white hover:bg-gray-700 disabled:opacity-50"
+                    className="flex-1 px-4 py-2 text-sm font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                 >
-                    {isSubmitting ? "保存中..." : "タスクを追加"}
+                    {isSubmitting ? (
+                        <span className="flex items-center justify-center">
+                            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            保存中...
+                        </span>
+                    ) : (
+                        "タスクを追加"
+                    )}
                 </button>
             </div>
         </form>

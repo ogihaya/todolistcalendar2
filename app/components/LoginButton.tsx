@@ -47,7 +47,7 @@ export default function LoginButton() {
                 <div>
                     <button
                         onClick={handleLogout}
-                        className="px-4 py-2 border border-gray-300 text-black hover:bg-gray-50 disabled:opacity-50"
+                        className="px-4 py-2 border bg-red-600 text-white hover:bg-red-700 disabled:opacity-50 rounded-lg"
                     >
                         ログアウト
                     </button>
@@ -56,7 +56,7 @@ export default function LoginButton() {
                 // 未ログインの場合
                 <button
                     onClick={handleGoogleLogin}
-                    className="px-4 py-2 border border-gray-300 text-black hover:bg-gray-50 disabled:opacity-50"
+                    className="px-4 py-2 border bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-50 rounded-lg"
                 >
                     {loading ? "ローディング中..." : "Googleでログイン"}
                 </button>

@@ -115,27 +115,32 @@ export default function EventDetails({ selectedDate, selectedSchedule, selectedT
     return (
         <div>
             {/* 日付ヘッダー */}
-            <h2 className="text-lg font-bold">
-                {formatDateWithoutWeekday(selectedDate)}
-                (<span className={`${getWeekdayColor(selectedDate)}`}>{formatWeekday(selectedDate)}</span>)
+            <div>
+                <span className="text-2xl font-bold text-slate-900 mb-2">
+                    {formatDateWithoutWeekday(selectedDate)}
+                    (<span className={`${getWeekdayColor(selectedDate)}`}>
+                        {formatWeekday(selectedDate)}
+                    </span>)
+                </span>
                 {/* 祝日の場合は祝日名を表示 */}
                 {getHolidayName(selectedDate) && (
-                    <span className="ml-2 text-sm font-normal text-red-500">
-                        {getHolidayName(selectedDate)}
+                    <span className="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-medium">
+                        🎌 {getHolidayName(selectedDate)}
                     </span>
                 )}
-            </h2>
+            </div>
 
             {selectedSchedule.length === 0 && selectedTask.length === 0 && (
                 <div className="text-center">
-                    <p className="text-gray-500 text-lg">この日には予定がありません</p>
-                    <p className="text-gray-400 text-sm">新しい予定やタスクを追加してみましょう！</p>
+                    <p className="text-slate-500 text-lg font-medium mb-2">この日には予定がありません</p>
+                    <p className="text-slate-400 text-sm">新しい予定やタスクを追加してみましょう！</p>
                 </div>
             )}
 
             {/* スケジュール（予定）の表示 */}
             {selectedSchedule.length > 0 && (
-                <div>
+                <div className="mb-1">
+                    <div className="space-y-1">
                     {selectedSchedule.map((schedule) => (
                         <div key={schedule.id} className="pl-2 bg-blue-50 rounded-r-lg mb-1 flex items-center">
                             <button className="text-sm text-gray-600 mr-2 my-1 bg-gray-50 border border-gray-600 rounded-sm px-1 hover:bg-gray-300 flex-shrink-0" onClick={() => {
@@ -165,12 +170,14 @@ export default function EventDetails({ selectedDate, selectedSchedule, selectedT
                             </div>
                         </div>
                     ))}
+                    </div>
                 </div>
             )}
 
             {/* タスクの表示 */}
             {selectedTask.length > 0 && (
                 <div>
+                    <div className="space-y-1">
                     {selectedTask.map((task) => (
                         <div key={task.id} className="pl-2 bg-green-50 rounded-r-lg mb-1 flex items-center">
                             <button className="text-sm text-gray-600 mr-2 my-1 bg-gray-50 border border-gray-600 rounded-sm px-1 hover:bg-gray-300 flex-shrink-0" onClick={() => {
@@ -193,6 +200,7 @@ export default function EventDetails({ selectedDate, selectedSchedule, selectedT
                             </div>
                         </div>
                     ))}
+                    </div>
                 </div>
             )}
         </div>
