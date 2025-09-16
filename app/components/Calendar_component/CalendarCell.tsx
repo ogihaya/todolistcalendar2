@@ -69,20 +69,46 @@ export default function CalendarCell({ currentYM, schedules, tasks, selectedDate
 
       // 日付セルを生成してリストに追加
       cellList.push(
-        <div key={i} className={`border border-gray-300 ${isSelected ? "border-red-500 border-2" : ""} ${isToday ? "bg-red-100" : ""}`} onClick={() => {
-          setSelectedDate(processDate);
-        }}>
-          <div className={textClass}>
-            {processDate.getDate()} {/* 日付を表示 */}
+        <div 
+          key={i} 
+          className={`
+            relative p-1 sm:p-2 border border-gray-200
+            ${isSelected ? "border-2 border-red-500 " : ""} 
+            ${isToday ? "bg-red-100" : ""}
+            ${processDate.getMonth() !== currentYM.month ? "opacity-40" : ""}
+          `} 
+          onClick={() => {
+            setSelectedDate(processDate);
+          }}
+        >
+          {/* 日付表示 */}
+          <div className={`
+            text-xs sm:text-sm font-medium mb-1 sm:mb-2
+            ${textClass}
+          `}>
+            {processDate.getDate()}
           </div>
-          <div>
+
+          {/* イベント表示エリア */}
+          <div className="space-y-0.5 sm:space-y-1">
+            {/* スケジュール（予定） */}
             {schedulesForDate.map(schedule => (
-              <div key={schedule.id} className="text-sm truncate bg-blue-100 rounded-sm m-1">{schedule.name}</div>
+              <div 
+                key={schedule.id} 
+                className="text-xs truncate bg-blue-100 text-blue-800 px-1 sm:px-2 py-0.5 sm:py-1 rounded border-l-2 border-blue-400"
+              >
+                {schedule.name}
+              </div>
             ))}
-          </div>
-          <div>
+            
+            {/* タスク */}
             {tasksForDate.map(task => (
-              <div key={task.id} className="text-sm truncate bg-green-100 rounded-sm m-1">{task.name}</div>
+              <div 
+                key={task.id} 
+                className="text-xs truncate bg-green-100 text-green-800 px-1 sm:px-2 py-0.5 sm:py-1 rounded border-l-2 border-green-400"
+              >
+                {task.name}
+              </div>
             ))}
           </div>
         </div>

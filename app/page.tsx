@@ -49,35 +49,87 @@ export default function Home() {
 
 
   return (
-    <>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50">
+      {/* ヘッダー */}
+      <header className="border-slate-200">
       {/* 右上に設定アイコンを配置 */}
       <div className="text-right m-1">
         <button className="p-2 rounded-full hover:bg-gray-100" onClick={() => setIsSettingSideModalOpen(true)}>
           <MdSettings className="text-gray-700 text-xl" />
         </button>
       </div>
+      </header>
+
+      {/* メインコンテンツ */}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div>
+          {/* カレンダーセクション */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-6 animate-fade-in">
+            <Calendar
+              selectedDate={selectedDate}
+              setSelectedDate={setSelectedDate}
+              today={today}
+              schedules={schedules}
+              tasks={tasks}
+              loading={loading}
+              error={error}
+            />
+
+          {/* 選択日付の詳細セクション */}
+            <EventDetails
+              selectedDate={selectedDate}
+              selectedSchedule={selectedSchedule}
+              selectedTask={selectedTask}
+              setIsEditScheduleModalOpen={setIsEditScheduleModalOpen}
+              setIsEditTaskModalOpen={setIsEditTaskModalOpen}
+              setEditingSchedule={setEditingSchedule}
+              setEditingTask={setEditingTask}
+              setRepeatEditOpitonModalOpen={setRepeatEditOpitonModalOpen}
+            />
+            {/* アクションボタン */}
+            <div className="flex justify-end">
+              <button
+                onClick={openEventModal}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-1 px-4 rounded-lg shadow-md hover:shadow-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              >
+                <span className="flex items-center gap-2">
+                  <span className="text-xl">+</span>
+                  イベント追加
+                </span>
+              </button>
+            </div>
+          </div>
+
+          {/* タスクリストとテンプタスクのセクション */}
+          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6 animate-fade-in">
+            <div className="flex flex-col lg:flex-row">
+              <div className="lg:w-2/3">
+                <h2 className="text-lg font-semibold text-slate-900 mb-4">タスクリスト</h2>
+                <TaskList
+                  today={today}
+                  schedules={schedules}
+                  tasks={tasks}
+                  availableTimePerDay={settings?.availableTimePerDay}
+                  dateTakeIntoAccount={settings?.dateTakeIntoAccount}
+                  availableTimePerUnscheduledDay={settings?.availableTimePerUnscheduledDay}
+                  onEditTask={(task) => { setEditingTask(task); setIsEditTaskModalOpen(true); }}
+                />
+              </div>
+              <div className="lg:w-1/3">
+                <h2 className="text-lg font-semibold text-slate-900 mb-4">一時的なタスク</h2>
+                <TempTaskList tempTasks={tempTasks} selectedDate={selectedDate} />
+              </div>
+            </div>
+          </div>
+        </div>
+      </main>
+
+      {/* モーダル */}
       {isSettingSideModalOpen && <SettingSideModal setIsSettingSideModalOpen={setIsSettingSideModalOpen} settings={settings} />}
-      <div className="my-1 mx-2">
-        <Calendar selectedDate={selectedDate} setSelectedDate={setSelectedDate} today={today} schedules={schedules} tasks={tasks} loading={loading} error={error} />
-      </div>
-      <div className="my-1 mx-2">
-        <EventDetails selectedDate={selectedDate} selectedSchedule={selectedSchedule} selectedTask={selectedTask} setIsEditScheduleModalOpen={setIsEditScheduleModalOpen} setIsEditTaskModalOpen={setIsEditTaskModalOpen} setEditingSchedule={setEditingSchedule} setEditingTask={setEditingTask} setRepeatEditOpitonModalOpen={setRepeatEditOpitonModalOpen} />
-      </div>
-      <div className="flex justify-end">
-        <button onClick={openEventModal} className="text-lg font-bold border border-gray-600 rounded-sm px-6 hover:bg-gray-200 mr-4">＋イベント追加</button>
-      </div>
-      <div className="my-1 mx-2 flex flex-col lg:flex-row">
-        <div className="w-full lg:w-7/10 lg:pr-2 mb-4 lg:mb-0">
-          <TaskList today={today} schedules={schedules} tasks={tasks} availableTimePerDay={settings?.availableTimePerDay} dateTakeIntoAccount={settings?.dateTakeIntoAccount} availableTimePerUnscheduledDay={settings?.availableTimePerUnscheduledDay} onEditTask={(task) => { setEditingTask(task); setIsEditTaskModalOpen(true); }} />
-        </div>
-        <div className="w-full lg:w-3/10">
-          <TempTaskList tempTasks={tempTasks} selectedDate={selectedDate} />
-        </div>
-      </div>
       {isEventModalOpen && <AddEventModal setIsEventModalOpen={setIsEventModalOpen} selectedDate={selectedDate} />}
       {isEditScheduleModalOpen && <EditScheduleModal setIsEditScheduleModalOpen={setIsEditScheduleModalOpen} editingSchedule={editingSchedule} />}
       {isEditTaskModalOpen && <EditTaskModal setIsEditTaskModalOpen={setIsEditTaskModalOpen} editingTask={editingTask} />}
       {repeatEditOpitonModalOpen && <RepeatEditOptionModal setRepeatEditOpitonModalOpen={setRepeatEditOpitonModalOpen} setIsEditScheduleModalOpen={setIsEditScheduleModalOpen} editingSchedule={editingSchedule} setEditingSchedule={setEditingSchedule} selectedDate={selectedDate} />}
-    </>
+    </div>
   );
 }

@@ -19,8 +19,8 @@ export default function TempTaskList({ tempTasks, selectedDate }: TempTaskListPr
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-          // バリデーション（入力値の検証）
-          if (!taskName) {
+        // バリデーション（入力値の検証）
+        if (!taskName) {
             alert("タスク名は必須です");
             return;
         }
@@ -57,19 +57,63 @@ export default function TempTaskList({ tempTasks, selectedDate }: TempTaskListPr
     };
 
     return (
-        <div className="h-60 overflow-y-auto border border-gray-800 p-2">
-            <form onSubmit={handleSubmit} className="flex gap-2 justify-between">
-                <input type="text" placeholder="タスク名" value={taskName} onChange={(e) => setTaskName(e.target.value)} className="border border-gray-400" />
-                <button disabled={isSubmitting} className="border border-gray-600 px-1 rounded-md hover:bg-gray-200">一時タスク追加</button>
-            </form>
-            <div>
-                {tempTasks.map((tempTask) => (
-                    <div key={tempTask.id} className="flex gap-2 justify-between mt-1 bg-gray-200">
-                        <div className="ml-2">{tempTask.name}</div>
-                        <button onClick={() => handleEdit(tempTask)} className="bg-white border border-gray-600 px-1 mr-2 hover:bg-gray-200">編集</button>
+        <div className="h-60 rounded-lg border border-slate-200 overflow-hidden">
+            {/* ヘッダー */}
+            <div className="bg-slate-50 px-4 py-3 border-b border-slate-200">
+                           {/* フォーム */}
+            <div className="border-slate-200">
+                <form onSubmit={handleSubmit} className="space-y-3">
+                    <div className="flex gap-2">
+                        <input 
+                            type="text" 
+                            placeholder="新しいタスク名を入力..." 
+                            value={taskName} 
+                            onChange={(e) => setTaskName(e.target.value)} 
+                            className="flex-1 px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200" 
+                        />
+                        <button 
+                            disabled={isSubmitting || !taskName.trim()} 
+                            className="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                        >
+                            {isSubmitting ? "追加中..." : "追加"}
+                        </button>
                     </div>
-                ))}
+                </form>
             </div>
+
+            </div>
+
+            {/* タスクリスト */}
+            <div className="max-h-48 overflow-y-auto">
+                {tempTasks.length === 0 ? (
+                    <div className="p-8 text-center text-slate-500">
+                        <div className="text-3xl mb-2">📝</div>
+                        <p className="text-sm">一時的なタスクがありません</p>
+                        <p className="text-xs text-slate-400 mt-1">上記のフォームから追加してください</p>
+                    </div>
+                ) : (
+                    <div className="divide-y divide-slate-200">
+                        {tempTasks.map((tempTask) => (
+                            <div key={tempTask.id} className="p-3 hover:bg-slate-50 transition-colors duration-150">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-slate-900 truncate">
+                                            {tempTask.name}
+                                        </p>
+                                    </div>
+                                    <button 
+                                        onClick={() => handleEdit(tempTask)} 
+                                        className="ml-3 px-2 py-1 text-xs font-medium text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                    >
+                                        編集
+                                    </button>
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                )}
+            </div>
+
             {isEditTempTaskModalOpen && <EditTempTaskModal setIsEditTempTaskModalOpen={setIsEditTempTaskModalOpen} editingTempTask={editingTempTask} selectedDate={selectedDate} />}
         </div>
     );
