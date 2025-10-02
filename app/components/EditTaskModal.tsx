@@ -184,6 +184,7 @@ export default function EditTaskModal({ setIsEditTaskModalOpen, editingTask }: E
                                     name="estimatedTime"
                                     value={formData.estimatedTime}
                                     onChange={handleInputChange}
+                                onWheel={(e) => (e.currentTarget as HTMLInputElement).blur()}
                                     placeholder="例: 2.5"
                                     min="0.1"
                                     step="0.1"
