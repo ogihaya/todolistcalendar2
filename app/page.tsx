@@ -54,7 +54,7 @@ export default function Home() {
       <header className="border-slate-200">
       {/* 右上に設定アイコンを配置 */}
       <div className="text-right m-1">
-        <button className="p-2 rounded-full hover:bg-gray-100" onClick={() => setIsSettingSideModalOpen(true)}>
+        <button className="p-2 rounded-full bg-white hover:bg-gray-100" onClick={() => setIsSettingSideModalOpen(true)}>
           <MdSettings className="text-gray-700 text-xl" />
         </button>
       </div>
