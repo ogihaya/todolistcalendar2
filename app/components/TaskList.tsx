@@ -65,27 +65,34 @@ export default function TaskList({
         });
     }, [today, schedules, tasks, availableTimePerDay, dateTakeIntoAccount, availableTimePerUnscheduledDay]);
 
-    // 最も猶予時間が少ないタスクを特定する関数
+    // (猶予時間 / 締め切り日までの日数) が最小のタスクを特定する関数
     const getTaskWithLeastRemainingTime = useMemo(() => {
         if (tasksWithRemainingTime.length === 0) return null;
 
-        // 猶予時間が最も少ないタスクを取得
+        // 指標: remainingTime(時間) / daysUntilDeadline(日)
+        const getUrgencyIndex = (task: TaskWithRemainingTime) => {
+            const daysUntilDeadline = (task.deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
+            // 0日以下は極めて緊急とみなし、0除算を避けるために非常に小さい値を使う
+            const denominator = daysUntilDeadline > 0 ? daysUntilDeadline : Number.EPSILON;
+            return task.remainingTime / denominator;
+        };
+
         return tasksWithRemainingTime.reduce((minTask, currentTask) => {
-            return currentTask.remainingTime < minTask.remainingTime ? currentTask : minTask;
+            return getUrgencyIndex(currentTask) < getUrgencyIndex(minTask) ? currentTask : minTask;
         });
-    }, [tasksWithRemainingTime]);
+    }, [tasksWithRemainingTime, today]);
 
     // 行の背景色を決定する関数
     const getRowBackgroundColor = (task: TaskWithRemainingTime) => {
         // タスクがない場合は通常の背景色
         if (!getTaskWithLeastRemainingTime) return "";
 
-        // 最も猶予時間が少ないタスクの場合
+        // (猶予時間/締め切り日までの日数) が最小のタスクの場合
         if (task.id === getTaskWithLeastRemainingTime.id) {
             return "bg-red-100"; // 薄い赤の背景
         }
 
-        // 最も猶予時間が少ないタスクの締め切り日より早いタスクの場合
+        // 上記タスクの締め切り日より早いタスクの場合
         if (task.deadline < getTaskWithLeastRemainingTime.deadline) {
             return "bg-red-100"; // 薄い赤の背景
         }
