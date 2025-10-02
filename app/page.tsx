@@ -36,6 +36,7 @@ export default function Home() {
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
   const [repeatEditOpitonModalOpen, setRepeatEditOpitonModalOpen] = useState(false);
+  const [minDailySlack, setMinDailySlack] = useState<number | null>(null);
 
   // データが読み込まれたら、選択された日付のイベントを更新
   useEffect(() => {
@@ -104,7 +105,14 @@ export default function Home() {
           <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 sm:p-6 animate-fade-in">
             <div className="flex flex-col lg:flex-row">
               <div className="lg:w-2/3">
-                <h2 className="text-lg font-semibold text-slate-900 mb-4">タスクリスト</h2>
+                <h2 className="text-lg font-semibold text-slate-900 mb-4">
+                  タスクリスト
+                  {typeof minDailySlack === 'number' && (
+                    <span className="ml-2 text-sm font-normal text-slate-600">
+                      （1日平均でサボってもいい時間: {minDailySlack.toFixed(1)}時間）
+                    </span>
+                  )}
+                </h2>
                 <TaskList
                   today={today}
                   schedules={schedules}
@@ -113,6 +121,7 @@ export default function Home() {
                   dateTakeIntoAccount={settings?.dateTakeIntoAccount}
                   availableTimePerUnscheduledDay={settings?.availableTimePerUnscheduledDay}
                   onEditTask={(task) => { setEditingTask(task); setIsEditTaskModalOpen(true); }}
+                  onMinDailySlackChange={setMinDailySlack}
                 />
               </div>
               <div className="lg:w-1/3">

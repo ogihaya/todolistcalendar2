@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
     createColumnHelper,
     flexRender,
@@ -19,6 +19,7 @@ interface TaskListProps {
     dateTakeIntoAccount: Date;
     availableTimePerUnscheduledDay: number;
     onEditTask: (task: Task) => void;
+    onMinDailySlackChange?: (value: number | null) => void;
 }
 
 // タスクと猶予時間を含む型定義
@@ -36,7 +37,8 @@ export default function TaskList({
     availableTimePerDay,
     dateTakeIntoAccount,
     availableTimePerUnscheduledDay,
-    onEditTask
+    onEditTask,
+    onMinDailySlackChange
 }: TaskListProps) {
     // ソート状態を管理
     const [sorting, setSorting] = useState<SortingState>([
@@ -65,35 +67,47 @@ export default function TaskList({
         });
     }, [today, schedules, tasks, availableTimePerDay, dateTakeIntoAccount, availableTimePerUnscheduledDay]);
 
-    // (猶予時間 / 締め切り日までの日数) が最小のタスクを特定する関数
-    const getTaskWithLeastRemainingTime = useMemo(() => {
-        if (tasksWithRemainingTime.length === 0) return null;
-
-        // 指標: remainingTime(時間) / daysUntilDeadline(日)
-        const getUrgencyIndex = (task: TaskWithRemainingTime) => {
+    // (猶予時間 / 締め切り日までの日数) が最小のタスクと、その最小値を同時計算
+    const { minTask, minDailySlack } = useMemo(() => {
+        if (tasksWithRemainingTime.length === 0) {
+            return { minTask: null as TaskWithRemainingTime | null, minDailySlack: null as number | null };
+        }
+        const getIndex = (task: TaskWithRemainingTime) => {
             const daysUntilDeadline = (task.deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24);
-            // 0日以下は極めて緊急とみなし、0除算を避けるために非常に小さい値を使う
             const denominator = daysUntilDeadline > 0 ? daysUntilDeadline : Number.EPSILON;
             return task.remainingTime / denominator;
         };
-
-        return tasksWithRemainingTime.reduce((minTask, currentTask) => {
-            return getUrgencyIndex(currentTask) < getUrgencyIndex(minTask) ? currentTask : minTask;
-        });
+        let bestTask = tasksWithRemainingTime[0];
+        let bestVal = getIndex(bestTask);
+        for (let i = 1; i < tasksWithRemainingTime.length; i++) {
+            const candidate = tasksWithRemainingTime[i];
+            const v = getIndex(candidate);
+            if (v < bestVal) {
+                bestVal = v;
+                bestTask = candidate;
+            }
+        }
+        return { minTask: bestTask, minDailySlack: bestVal };
     }, [tasksWithRemainingTime, today]);
+
+    useEffect(() => {
+        if (onMinDailySlackChange) {
+            onMinDailySlackChange(minDailySlack);
+        }
+    }, [minDailySlack, onMinDailySlackChange]);
 
     // 行の背景色を決定する関数
     const getRowBackgroundColor = (task: TaskWithRemainingTime) => {
         // タスクがない場合は通常の背景色
-        if (!getTaskWithLeastRemainingTime) return "";
+        if (!minTask) return "";
 
         // (猶予時間/締め切り日までの日数) が最小のタスクの場合
-        if (task.id === getTaskWithLeastRemainingTime.id) {
+        if (task.id === minTask.id) {
             return "bg-red-100"; // 薄い赤の背景
         }
 
         // 上記タスクの締め切り日より早いタスクの場合
-        if (task.deadline < getTaskWithLeastRemainingTime.deadline) {
+        if (task.deadline < minTask.deadline) {
             return "bg-red-100"; // 薄い赤の背景
         }
 
