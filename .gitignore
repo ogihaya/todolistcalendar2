@@ -43,3 +43,6 @@ next-env.d.ts
 # editor directories
 .cursor/
 .vscode/
+
+# docs
+/docs/private/
