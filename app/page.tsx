@@ -35,7 +35,7 @@ export default function Home() {
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  const [repeatEditOpitonModalOpen, setRepeatEditOpitonModalOpen] = useState(false);
+  const [isRepeatEditOptionModalOpen, setIsRepeatEditOptionModalOpen] = useState(false);
   const [minDailySlack, setMinDailySlack] = useState<number | null>(null);
 
   // データが読み込まれたら、選択された日付のイベントを更新
@@ -85,7 +85,7 @@ export default function Home() {
               setIsEditTaskModalOpen={setIsEditTaskModalOpen}
               setEditingSchedule={setEditingSchedule}
               setEditingTask={setEditingTask}
-              setRepeatEditOpitonModalOpen={setRepeatEditOpitonModalOpen}
+              setIsRepeatEditOptionModalOpen={setIsRepeatEditOptionModalOpen}
             />
             {/* アクションボタン */}
             <div className="flex justify-end">
@@ -138,7 +138,7 @@ export default function Home() {
       {isEventModalOpen && <AddEventModal setIsEventModalOpen={setIsEventModalOpen} selectedDate={selectedDate} />}
       {isEditScheduleModalOpen && <EditScheduleModal setIsEditScheduleModalOpen={setIsEditScheduleModalOpen} editingSchedule={editingSchedule} />}
       {isEditTaskModalOpen && <EditTaskModal setIsEditTaskModalOpen={setIsEditTaskModalOpen} editingTask={editingTask} />}
-      {repeatEditOpitonModalOpen && <RepeatEditOptionModal setRepeatEditOpitonModalOpen={setRepeatEditOpitonModalOpen} setIsEditScheduleModalOpen={setIsEditScheduleModalOpen} editingSchedule={editingSchedule} setEditingSchedule={setEditingSchedule} selectedDate={selectedDate} />}
+      {isRepeatEditOptionModalOpen && <RepeatEditOptionModal setIsRepeatEditOptionModalOpen={setIsRepeatEditOptionModalOpen} setIsEditScheduleModalOpen={setIsEditScheduleModalOpen} editingSchedule={editingSchedule} setEditingSchedule={setEditingSchedule} selectedDate={selectedDate} />}
     </div>
   );
 }

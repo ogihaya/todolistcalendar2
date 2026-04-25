@@ -168,7 +168,6 @@ export const calculateRemainingTime = (
     dateTakeIntoAccount: Date,
     availableTimePerUnscheduledDay: number
 ): number => {
-    console.log("task", task);
     // 1. 引数のタスクの締切日を取得
     const deadline = new Date(task.deadline);
 
@@ -209,11 +208,10 @@ export const calculateRemainingTime = (
     // 5. 予定未確定の日程の減算
     const deadlineDate = new Date(deadline);
     const noAccountDaysLeft = Math.round((deadlineDate.getTime() - dateTakeIntoAccountStart.getTime()) / (1000 * 60 * 60 * 24))-1;
-    console.log("noAccountDaysLeft", noAccountDaysLeft);
     if (noAccountDaysLeft > 0) {
         totalAvailableTime -= noAccountDaysLeft * (availableTimePerDay - availableTimePerUnscheduledDay);
     }
 
-    // 結果を返す（負の値の場合は0を返す）
+    // 結果をそのまま返す。負の値は期限までの時間不足を示す。
     return totalAvailableTime;
 };

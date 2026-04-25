@@ -115,7 +115,7 @@ export default function CalendarCell({ currentYM, schedules, tasks, selectedDate
       );
     }
     return cellList;
-  }, [currentYM, schedules, tasks, selectedDate, setSelectedDate, calendarInfo]);
+  }, [currentYM, schedules, tasks, selectedDate, setSelectedDate, calendarInfo, today]);
 
   return (
     <div className="grid grid-cols-7">

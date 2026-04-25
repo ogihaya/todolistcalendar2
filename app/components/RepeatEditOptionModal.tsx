@@ -4,14 +4,14 @@ import { db, auth } from "@/lib/firebase";
 import { addBlackoutDatesFunction, makeEndTime, makeStartTime } from "@/Utils/DeleteUtil";
 
 interface RepeatEditOptionModalProps {
-    setRepeatEditOpitonModalOpen: (repeatEditOpitonModalOpen: boolean) => void;
+    setIsRepeatEditOptionModalOpen: (isRepeatEditOptionModalOpen: boolean) => void;
     setIsEditScheduleModalOpen: (isEditScheduleModalOpen: boolean) => void;
     editingSchedule: Schedule | null;
     setEditingSchedule: (editingSchedule: Schedule | null) => void;
     selectedDate: Date;
 }
 
-export default function RepeatEditOptionModal({ setRepeatEditOpitonModalOpen, setIsEditScheduleModalOpen, editingSchedule, setEditingSchedule, selectedDate }: RepeatEditOptionModalProps) {
+export default function RepeatEditOptionModal({ setIsRepeatEditOptionModalOpen, setIsEditScheduleModalOpen, editingSchedule, setEditingSchedule, selectedDate }: RepeatEditOptionModalProps) {
 
 
     const processThisSchedule = async () => {
@@ -169,7 +169,7 @@ export default function RepeatEditOptionModal({ setRepeatEditOpitonModalOpen, se
         // モーダルの背景を含む最外層のラッパー
         <div
             className="fixed inset-0 flex items-center justify-center bg-black/30 z-50"
-            onClick={() => setRepeatEditOpitonModalOpen(false)} // 背景クリックでモーダルを閉じる
+            onClick={() => setIsRepeatEditOptionModalOpen(false)} // 背景クリックでモーダルを閉じる
         >
             {/* モーダル本体 */}
             <div
@@ -180,28 +180,28 @@ export default function RepeatEditOptionModal({ setRepeatEditOpitonModalOpen, se
                 <button
                     type="button"
                     className="absolute top-2 right-2 text-gray-400 hover:text-gray-600 text-lg"
-                    onClick={() => setRepeatEditOpitonModalOpen(false)}
+                    onClick={() => setIsRepeatEditOptionModalOpen(false)}
                     aria-label="閉じる"
                 >
                     ×
                 </button>
                 <div className="flex flex-col gap-2 mt-7">
                 <button onClick={() => {
-                    setRepeatEditOpitonModalOpen(false);
+                    setIsRepeatEditOptionModalOpen(false);
                     setIsEditScheduleModalOpen(true);
                 }}
                     className= "px-4 py-2 text-sm bg-white-800 border border-gray-300 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
                 >すべての予定を編集</button>
                 <button onClick={() => {
                     processThisSchedule();
-                    setRepeatEditOpitonModalOpen(false);
+                    setIsRepeatEditOptionModalOpen(false);
                     setIsEditScheduleModalOpen(true);
                 }}
                     className="px-4 py-2 text-sm bg-white-800 border border-gray-300 text-gray-600 hover:bg-gray-200 disabled:opacity-50"
                 >この予定だけを編集</button>
                 <button onClick={() => {
                     processFutureSchedules();
-                    setRepeatEditOpitonModalOpen(false);
+                    setIsRepeatEditOptionModalOpen(false);
                     setIsEditScheduleModalOpen(true);
                 }}
                     className="px-4 py-2 text-sm bg-white-800 border border-gray-300 text-gray-600 hover:bg-gray-200 disabled:opacity-50"

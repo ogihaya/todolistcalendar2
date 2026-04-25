@@ -10,10 +10,10 @@ interface EventDetailsProps {
     setIsEditTaskModalOpen: (isEditTaskModalOpen: boolean) => void;
     setEditingSchedule: (editingSchedule: Schedule) => void;
     setEditingTask: (editingTask: Task) => void;
-    setRepeatEditOpitonModalOpen: (repeatEditOpitonModalOpen: boolean) => void;
+    setIsRepeatEditOptionModalOpen: (isRepeatEditOptionModalOpen: boolean) => void;
 }
 
-export default function EventDetails({ selectedDate, selectedSchedule, selectedTask, setIsEditScheduleModalOpen, setIsEditTaskModalOpen, setEditingSchedule, setEditingTask, setRepeatEditOpitonModalOpen }: EventDetailsProps) {
+export default function EventDetails({ selectedDate, selectedSchedule, selectedTask, setIsEditScheduleModalOpen, setIsEditTaskModalOpen, setEditingSchedule, setEditingTask, setIsRepeatEditOptionModalOpen }: EventDetailsProps) {
     // 日付を日本語形式でフォーマットする関数（曜日なし）
     const formatDateWithoutWeekday = (date: Date) => {
         const options: Intl.DateTimeFormatOptions = {
@@ -145,7 +145,7 @@ export default function EventDetails({ selectedDate, selectedSchedule, selectedT
                         <div key={schedule.id} className="pl-2 bg-blue-50 rounded-r-lg mb-1 flex items-center">
                             <button className="text-sm text-gray-600 mr-2 my-1 bg-gray-50 border border-gray-600 rounded-sm px-1 hover:bg-gray-300 flex-shrink-0" onClick={() => {
                                 if (schedule.repeat !== "none") {
-                                    setRepeatEditOpitonModalOpen(true);
+                                    setIsRepeatEditOptionModalOpen(true);
                                     setEditingSchedule(schedule);
                                 } else {
                                     setIsEditScheduleModalOpen(true);
