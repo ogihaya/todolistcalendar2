@@ -123,7 +123,6 @@ export function useEvents() {
           });
         } else {
           // 設定ドキュメントが存在しない場合はデフォルト値を維持
-          console.log('設定データが見つかりません。デフォルト値を使用します。');
         }
         setLoading(false);
       },

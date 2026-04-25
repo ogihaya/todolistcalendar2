@@ -50,9 +50,6 @@ export default function RepeatEditOptionModal({ setIsRepeatEditOptionModalOpen, 
             const newStartTime = makeStartTime(selectedDate, editingSchedule.startTime);
             const newEndTime = makeEndTime(selectedDate, editingSchedule.endTime);
 
-            console.log("newStartTime", newStartTime);
-            console.log("newEndTime", newEndTime);
-
             // ①(3) editingScheduleのrepeatStartとrepeatEndをselectedDateに設定した予定
             const scheduleCurrent: Omit<Schedule, 'id'> = {
                 ...scheduleWithoutId,
@@ -78,12 +75,10 @@ export default function RepeatEditOptionModal({ setIsRepeatEditOptionModalOpen, 
                 ...scheduleCurrent,
                 id: currentScheduleRef.id
             };
-            console.log("newSchedule", newSchedule);
             setEditingSchedule(newSchedule);
             */
      
             const addBlackoutDates = addBlackoutDatesFunction(editingSchedule, selectedDate);
-            console.log("addBlackoutDates", addBlackoutDates);
 
             const updatedSchedule = {
                 blackoutDates: [...(editingSchedule.blackoutDates || []), ...addBlackoutDates],
@@ -100,7 +95,6 @@ export default function RepeatEditOptionModal({ setIsRepeatEditOptionModalOpen, 
                 repeatStartDate: selectedDate,
                 repeatEndDate: null
             }
-            console.log("newSchedule", newSchedule);
 
 
             const newScheduleRef = await addDoc(collection(db, "users", userId, 'schedules'), newSchedule);
