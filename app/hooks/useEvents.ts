@@ -1,12 +1,14 @@
 // Reactの必要な機能をインポート
 import { useState, useEffect } from 'react';
 // Firebase Firestoreから必要な関数をインポート
-import { collection, onSnapshot, Timestamp, doc } from 'firebase/firestore';
+import { collection, onSnapshot, doc } from 'firebase/firestore';
 // Firebase認証から必要な関数と型をインポート
 import { onAuthStateChanged, User } from 'firebase/auth';
 // プロジェクト内のFirebase設定と型定義をインポート
 import { auth, db } from '@/lib/firebase';
 import { Schedule, Task, Settings, TempTask } from '@/types/event';
+import { calendarEventToSchedule } from '@/services/calendarEventAdapters';
+import { calendarEventFromFirestore, readDate } from '@/services/calendarEventStore';
 
 /**
  * Firebaseから全ての予定とタスクを取得するカスタムフック
@@ -50,23 +52,14 @@ export function useEvents() {
     setLoading(true);
     setError(null);
 
-    // 予定の監視
+    // Google Calendar互換モデルの予定を監視
     const unsubscribeSchedules = onSnapshot(
-      collection(db, 'users', user.uid, 'schedules'),
+      collection(db, 'users', user.uid, 'calendarEvents'),
       (snapshot) => {
-        const schedulesData = snapshot.docs.map(doc => ({
-          id: doc.id, // ドキュメントのID
-          type: 'schedule' as const, // 予定であることを示すタイプ
-          name: doc.data().name, // 予定名
-          startTime: doc.data().startTime.toDate(), // 開始時刻（Firebase TimestampをDate型に変換）
-          endTime: doc.data().endTime.toDate(), // 終了時刻
-          repeat: doc.data().repeat || 'none', // 繰り返し設定（デフォルトは'none'）
-          repeatStartDate: doc.data().repeatStartDate?.toDate(), // 繰り返し開始日
-          repeatEndDate: doc.data().repeatEndDate?.toDate() || null, // 繰り返し終了日
-          location: doc.data().location, // 場所
-          memo: doc.data().memo, // メモ
-          blackoutDates: doc.data().blackoutDates?.map((date: Timestamp) => date.toDate())
-        }));
+        const schedulesData = snapshot.docs
+          .map((document) => calendarEventFromFirestore(document.id, document.data()))
+          .map(calendarEventToSchedule)
+          .filter((schedule): schedule is Schedule => schedule !== null);
         setSchedules(schedulesData);
         setLoading(false);
       },
@@ -119,7 +112,17 @@ export function useEvents() {
           setSettings({
             availableTimePerDay: settingsData.availableTimePerDay || 0, // 1日の利用可能時間
             dateTakeIntoAccount: settingsData.dateTakeIntoAccount?.toDate() || new Date(), // 考慮開始日
-            availableTimePerUnscheduledDay: settingsData.availableTimePerUnscheduledDay || 0 // 予定なし日の利用可能時間
+            availableTimePerUnscheduledDay: settingsData.availableTimePerUnscheduledDay || 0, // 予定なし日の利用可能時間
+            googleCalendarSync: settingsData.googleCalendarSync
+              ? {
+                  calendarId: settingsData.googleCalendarSync.calendarId,
+                  calendarSummary: settingsData.googleCalendarSync.calendarSummary,
+                  lastSyncedAt: readDate(settingsData.googleCalendarSync.lastSyncedAt),
+                  syncWindowPastDays: settingsData.googleCalendarSync.syncWindowPastDays || 30,
+                  syncWindowFutureDays: settingsData.googleCalendarSync.syncWindowFutureDays || 365,
+                  lastSyncError: settingsData.googleCalendarSync.lastSyncError,
+                }
+              : undefined
           });
         } else {
           // 設定ドキュメントが存在しない場合はデフォルト値を維持

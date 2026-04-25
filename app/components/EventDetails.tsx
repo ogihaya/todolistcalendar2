@@ -10,10 +10,9 @@ interface EventDetailsProps {
     setIsEditTaskModalOpen: (isEditTaskModalOpen: boolean) => void;
     setEditingSchedule: (editingSchedule: Schedule) => void;
     setEditingTask: (editingTask: Task) => void;
-    setIsRepeatEditOptionModalOpen: (isRepeatEditOptionModalOpen: boolean) => void;
 }
 
-export default function EventDetails({ selectedDate, selectedSchedule, selectedTask, setIsEditScheduleModalOpen, setIsEditTaskModalOpen, setEditingSchedule, setEditingTask, setIsRepeatEditOptionModalOpen }: EventDetailsProps) {
+export default function EventDetails({ selectedDate, selectedSchedule, selectedTask, setIsEditScheduleModalOpen, setIsEditTaskModalOpen, setEditingSchedule, setEditingTask }: EventDetailsProps) {
     // 日付を日本語形式でフォーマットする関数（曜日なし）
     const formatDateWithoutWeekday = (date: Date) => {
         const options: Intl.DateTimeFormatOptions = {
@@ -144,13 +143,8 @@ export default function EventDetails({ selectedDate, selectedSchedule, selectedT
                     {selectedSchedule.map((schedule) => (
                         <div key={schedule.id} className="pl-2 bg-blue-50 rounded-r-lg mb-1 flex items-center">
                             <button className="text-sm text-gray-600 mr-2 my-1 bg-gray-50 border border-gray-600 rounded-sm px-1 hover:bg-gray-300 flex-shrink-0" onClick={() => {
-                                if (schedule.repeat !== "none") {
-                                    setIsRepeatEditOptionModalOpen(true);
-                                    setEditingSchedule(schedule);
-                                } else {
-                                    setIsEditScheduleModalOpen(true);
-                                    setEditingSchedule(schedule);
-                                }
+                                setIsEditScheduleModalOpen(true);
+                                setEditingSchedule(schedule);
                             }}><FaEdit /></button>
                             <div className="flex items-center border-l-4 border-blue-500 pl-2 truncate">
                                 <span className="text-sm text-gray-600 mr-2 flex-shrink-0">
@@ -165,6 +159,11 @@ export default function EventDetails({ selectedDate, selectedSchedule, selectedT
                                 {schedule.memo && (
                                     <span className="text-sm text-gray-600 mr-2 flex items-center">
                                         <FaStickyNote /> {schedule.memo}
+                                    </span>
+                                )}
+                                {schedule.unsupportedReason && (
+                                    <span className="text-xs text-amber-700 bg-amber-100 rounded px-2 py-0.5 mr-2">
+                                        Google繰り返し一部未対応
                                     </span>
                                 )}
                             </div>

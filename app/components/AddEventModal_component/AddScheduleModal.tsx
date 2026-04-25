@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { addDoc, collection } from "firebase/firestore";
-import { db, auth } from "@/lib/firebase";
-import { Schedule } from "@/types/event";
+import { auth } from "@/lib/firebase";
+import { RepeatType } from "@/types/event";
+import { createCalendarEvent } from "@/services/calendarEventStore";
 
 // モーダルのプロパティの型定義
 interface AddScheduleModalProps {
@@ -27,7 +27,7 @@ export default function AddScheduleModal({ onClose, selectedDate }: AddScheduleM
         name: "",
         startTime: getInitialDateTime(),
         endTime: getInitialDateTime(),
-        repeat: "none" as const,
+        repeat: "none" as RepeatType,
         location: "",
         memo: ""
     });
@@ -69,22 +69,14 @@ export default function AddScheduleModal({ onClose, selectedDate }: AddScheduleM
                 alert("ユーザーがログインしていません。右上の設定ボタンからログインしてください。");
                 throw new Error('ユーザーがログインしていません');
             }
-            // Firestoreに保存するデータを作成
-            const scheduleData: Omit<Schedule, 'id'> = {
-                type: 'schedule',
-                name: formData.name,
-                startTime: new Date(formData.startTime),
-                endTime: new Date(formData.endTime),
+            await createCalendarEvent(userId, {
+                summary: formData.name,
+                startDateTime: new Date(formData.startTime),
+                endDateTime: new Date(formData.endTime),
                 repeat: formData.repeat,
-                repeatStartDate: new Date(new Date(formData.startTime).setHours(0, 0, 0, 0)), // 繰り返し開始日は開始時刻の0時0分0秒
-                repeatEndDate: null,
                 location: formData.location,
-                memo: formData.memo,
-                blackoutDates: []
-            };
-
-            // Firestoreの'schedules'コレクションにデータを追加
-            await addDoc(collection(db, "users", userId, 'schedules'), scheduleData);
+                description: formData.memo,
+            });
 
             onClose(); // モーダルを閉じる
 
@@ -156,6 +148,7 @@ export default function AddScheduleModal({ onClose, selectedDate }: AddScheduleM
                     className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
                 >
                     <option value="none">なし</option>
+                    <option value="daily">毎日</option>
                     <option value="weekly">毎週</option>
                     <option value="monthly">毎月</option>
                     <option value="yearly">毎年</option>

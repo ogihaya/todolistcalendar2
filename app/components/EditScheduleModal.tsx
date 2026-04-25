@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { doc, updateDoc, deleteDoc } from "firebase/firestore";
-import { db, auth } from "@/lib/firebase";
-import { Schedule } from "@/types/event";
+import { auth } from "@/lib/firebase";
+import { RepeatType, Schedule } from "@/types/event";
+import { markCalendarEventDeleted, updateCalendarEvent } from "@/services/calendarEventStore";
 
 // モーダルのプロパティの型定義
 interface EditScheduleModalProps {
@@ -26,7 +26,7 @@ export default function EditScheduleModal({ setIsEditScheduleModalOpen, editingS
         name: editingSchedule?.name || "",
         startTime: formatDateTimeForInput(editingSchedule?.startTime || new Date()),
         endTime: formatDateTimeForInput(editingSchedule?.endTime || new Date()),
-        repeat: editingSchedule?.repeat || "none",
+        repeat: (editingSchedule?.repeat || "none") as RepeatType,
         location: editingSchedule?.location || "",
         memo: editingSchedule?.memo || ""
     });
@@ -36,7 +36,7 @@ export default function EditScheduleModal({ setIsEditScheduleModalOpen, editingS
             name: editingSchedule?.name || "",
             startTime: formatDateTimeForInput(editingSchedule?.startTime || new Date()),
             endTime: formatDateTimeForInput(editingSchedule?.endTime || new Date()),
-            repeat: editingSchedule?.repeat || "none",
+            repeat: (editingSchedule?.repeat || "none") as RepeatType,
             location: editingSchedule?.location || "",
             memo: editingSchedule?.memo || ""
         });
@@ -82,17 +82,14 @@ export default function EditScheduleModal({ setIsEditScheduleModalOpen, editingS
                 throw new Error('ユーザーがログインしていません');
             }
 
-            const updatedSchedule = {
-                name: formData.name,
-                startTime: new Date(formData.startTime),
-                endTime: new Date(formData.endTime),
+            await updateCalendarEvent(userId, editingSchedule.id, {
+                summary: formData.name,
+                startDateTime: new Date(formData.startTime),
+                endDateTime: new Date(formData.endTime),
                 repeat: formData.repeat,
-                repeatStartDate: new Date(new Date(formData.startTime).setHours(0, 0, 0, 0)),
                 location: formData.location,
-                memo: formData.memo,
-            };
-
-            await updateDoc(doc(db, "users", userId, 'schedules', editingSchedule.id), updatedSchedule);
+                description: formData.memo,
+            });
 
             setIsEditScheduleModalOpen(false); // モーダルを閉じる
 
@@ -117,8 +114,7 @@ export default function EditScheduleModal({ setIsEditScheduleModalOpen, editingS
                 throw new Error('ユーザーがログインしていません');
             }
 
-            // Firestoreのドキュメントを削除
-            await deleteDoc(doc(db, "users", userId, 'schedules', editingSchedule.id));
+            await markCalendarEventDeleted(userId, editingSchedule.id);
 
             setIsEditScheduleModalOpen(false);
 
@@ -215,6 +211,7 @@ export default function EditScheduleModal({ setIsEditScheduleModalOpen, editingS
                                 className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors duration-200"
                             >
                                 <option value="none">なし</option>
+                                <option value="daily">毎日</option>
                                 <option value="weekly">毎週</option>
                                 <option value="monthly">毎月</option>
                                 <option value="yearly">毎年</option>

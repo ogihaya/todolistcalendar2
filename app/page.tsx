@@ -10,7 +10,6 @@ import { useEvents } from "@/hooks/useEvents";
 import { getSchedulesForDate, getTasksForDate } from "@/Utils/CalendarCellUtil";
 import EditScheduleModal from "@/components/EditScheduleModal";
 import EditTaskModal from "@/components/EditTaskModal";
-import RepeatEditOptionModal from "@/components/RepeatEditOptionModal";
 import TaskList from "@/components/TaskList";
 import SettingSideModal from "@/components/SettingSideModal";
 import { MdSettings } from "react-icons/md";
@@ -35,7 +34,6 @@ export default function Home() {
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
 
-  const [isRepeatEditOptionModalOpen, setIsRepeatEditOptionModalOpen] = useState(false);
   const [minDailySlack, setMinDailySlack] = useState<number | null>(null);
 
   // データが読み込まれたら、選択された日付のイベントを更新
@@ -85,7 +83,6 @@ export default function Home() {
               setIsEditTaskModalOpen={setIsEditTaskModalOpen}
               setEditingSchedule={setEditingSchedule}
               setEditingTask={setEditingTask}
-              setIsRepeatEditOptionModalOpen={setIsRepeatEditOptionModalOpen}
             />
             {/* アクションボタン */}
             <div className="flex justify-end">
@@ -138,7 +135,6 @@ export default function Home() {
       {isEventModalOpen && <AddEventModal setIsEventModalOpen={setIsEventModalOpen} selectedDate={selectedDate} />}
       {isEditScheduleModalOpen && <EditScheduleModal setIsEditScheduleModalOpen={setIsEditScheduleModalOpen} editingSchedule={editingSchedule} />}
       {isEditTaskModalOpen && <EditTaskModal setIsEditTaskModalOpen={setIsEditTaskModalOpen} editingTask={editingTask} />}
-      {isRepeatEditOptionModalOpen && <RepeatEditOptionModal setIsRepeatEditOptionModalOpen={setIsRepeatEditOptionModalOpen} setIsEditScheduleModalOpen={setIsEditScheduleModalOpen} editingSchedule={editingSchedule} setEditingSchedule={setEditingSchedule} selectedDate={selectedDate} />}
     </div>
   );
 }
