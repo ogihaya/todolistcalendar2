@@ -5,6 +5,7 @@ import { Settings } from "@/types/event";
 import { doc, setDoc } from "firebase/firestore";
 import { auth } from "@/lib/firebase";
 import { db } from "@/lib/firebase";
+import GoogleCalendarSyncPanel from "@/components/GoogleCalendarSyncPanel";
 
 interface SettingSideModalProps {
     setIsSettingSideModalOpen: (isSettingSideModalOpen: boolean) => void;
@@ -79,7 +80,7 @@ export default function SettingSideModal({ setIsSettingSideModalOpen, settings }
                 availableTimePerUnscheduledDay: availableTimePerUnscheduledDay,
             };
 
-            await setDoc(doc(db, "users", userId, 'settings', 'userSettings'), settingsData);
+            await setDoc(doc(db, "users", userId, 'settings', 'userSettings'), settingsData, { merge: true });
 
             setIsSettingSideModalOpen(false); // モーダルを閉じる
 
@@ -115,6 +116,8 @@ export default function SettingSideModal({ setIsSettingSideModalOpen, settings }
                         <h3 className="text-lg font-semibold text-slate-900 mb-4">アカウント</h3>
                         <LoginButton />
                     </div>
+
+                    <GoogleCalendarSyncPanel settings={settings?.googleCalendarSync} />
 
                     {/* 詳細設定セクション */}
                     <div>

@@ -33,6 +33,8 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 const storage = getStorage(app);
 const googleProvider = new GoogleAuthProvider();
+googleProvider.addScope("https://www.googleapis.com/auth/calendar.events");
+googleProvider.addScope("https://www.googleapis.com/auth/calendar.calendarlist.readonly");
 // let analytics; // Analytics はクライアントサイドでのみ初期化
 // if (typeof window !== 'undefined') {
 //   isSupported().then((supported) => {
